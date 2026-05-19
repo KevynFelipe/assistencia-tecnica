@@ -17,11 +17,7 @@ import { RouterModule } from '@angular/router';
           <p class="hero-sub">Seu dispositivo funcionando como novo. Rapidez e qualidade em cada reparo.</p>
           <p class="hero-desc">Smartphones, notebooks, desktops, tablets e muito mais. Orçamento sem compromisso.</p>
           <div class="hero-actions">
-            <a class="btn-primary-lg" href="https://wa.me/5511999999999" target="_blank">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-              Solicitar Orçamento
-            </a>
-            <a class="btn-secondary-lg" routerLink="/funcionarios">
+            <a class="btn-primary-lg" routerLink="/funcionarios">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
               Área do Técnico
             </a>
@@ -204,20 +200,6 @@ import { RouterModule } from '@angular/router';
         </div>
       </section>
 
-      <!-- CTA -->
-      <section class="cta">
-        <div class="section-inner">
-          <div class="cta-card">
-            <h2>Está com um aparelho com defeito?</h2>
-            <p>Solicite seu orçamento agora mesmo. Respondemos em poucos minutos.</p>
-            <a class="btn-cta-whatsapp" href="https://wa.me/5511999999999" target="_blank">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-              Fale Conosco pelo WhatsApp
-            </a>
-          </div>
-        </div>
-      </section>
-
       <!-- Footer -->
       <footer class="footer">
         <div class="section-inner">
@@ -229,9 +211,6 @@ import { RouterModule } from '@angular/router';
               </div>
               <p class="footer-desc">Assistência técnica especializada em reparos de eletrônicos. Qualidade e confiança desde 2024.</p>
               <div class="footer-social">
-                <a href="https://wa.me/5511999999999" target="_blank" aria-label="WhatsApp">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884z"/></svg>
-                </a>
                 <a href="https://instagram.com" target="_blank" aria-label="Instagram">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069z"/></svg>
                 </a>
@@ -300,8 +279,8 @@ import { RouterModule } from '@angular/router';
       padding: 14px 28px; font-size: .95rem; font-weight: 600;
       border-radius: 10px; text-decoration: none; transition: all .15s;
     }
-    .btn-primary-lg { background: #25D366; color: #fff; }
-    .btn-primary-lg:hover { background: #1da851; color: #fff; transform: translateY(-1px); }
+    .btn-primary-lg { background: var(--primary); color: #fff; }
+    .btn-primary-lg:hover { background: var(--primary-hover); color: #fff; transform: translateY(-1px); }
     .btn-secondary-lg { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
     .btn-secondary-lg:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-1px); }
 
@@ -350,13 +329,6 @@ import { RouterModule } from '@angular/router';
     .why-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; }
     .why-card h3 { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
     .why-card p { font-size: .84rem; color: var(--text-muted); line-height: 1.5; }
-
-    .cta { padding: 40px 24px 80px; }
-    .cta-card { text-align: center; padding: 56px 32px; background: linear-gradient(135deg, rgba(37,211,102,.06), rgba(37,211,102,.02)); border: 1px solid rgba(37,211,102,.2); border-radius: 16px; }
-    .cta-card h2 { font-size: 1.5rem; font-weight: 800; color: var(--text); margin-bottom: 10px; }
-    .cta-card p { color: var(--text-muted); font-size: .95rem; margin-bottom: 28px; }
-    .btn-cta-whatsapp { display: inline-flex; align-items: center; gap: 10px; padding: 14px 32px; background: #25D366; color: #fff; font-size: .95rem; font-weight: 600; border-radius: 10px; text-decoration: none; transition: background .15s; }
-    .btn-cta-whatsapp:hover { background: #1da851; color: #fff; }
 
     .footer { padding: 48px 24px 32px; background: var(--surface); border-top: 1px solid var(--border); }
     .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 32px; margin-bottom: 32px; }

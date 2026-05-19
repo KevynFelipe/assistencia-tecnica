@@ -5,7 +5,7 @@ import { Cliente } from '../types/types';
 
 @Injectable({ providedIn: 'root' })
 export class ClientesService {
-  private readonly API = '/api/clientes';
+  private readonly API = 'http://localhost:3000/clientes';
   constructor(private http: HttpClient) {}
 
   private log(method: string, data?: unknown) {

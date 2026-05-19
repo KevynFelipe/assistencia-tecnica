@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "backend": "node backend/server.js",
-    "frontend": "cd site && npx ng serve --proxy-config proxy.conf.json --open",
+    "frontend": "cd site && npx ng serve --open",
     "start": "echo 'Run in separate terminals: npm run backend & npm run frontend'"
   },
   "dependencies": {

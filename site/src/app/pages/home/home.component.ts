@@ -86,7 +86,7 @@ import { OrdemServico } from '../../core/types/types';
               <span class="service-price">A partir de R$ 149</span>
             </div>
             <div class="service-card">
-              <div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1593640495253-23108b86e77b?w=400&h=300&fit=crop');">
+              <div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1721333087357-74d172010700?w=400&h=300&fit=crop');">
                 <div class="card-img-overlay"></div>
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
               </div>
@@ -95,7 +95,7 @@ import { OrdemServico } from '../../core/types/types';
               <span class="service-price">A partir de R$ 99</span>
             </div>
             <div class="service-card">
-              <div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1605901309584-7bd056f6a7eb?w=400&h=300&fit=crop');">
+              <div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1665041974623-d398d035023e?w=400&h=300&fit=crop');">
                 <div class="card-img-overlay"></div>
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M2 12h20"/><path d="M12 2v20"/></svg>
               </div>
@@ -104,7 +104,7 @@ import { OrdemServico } from '../../core/types/types';
               <span class="service-price">A partir de R$ 129</span>
             </div>
             <div class="service-card">
-              <div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1586210579198-33b0d8c4bd61?w=400&h=300&fit=crop');">
+              <div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1551459601-c42a28ef7506?w=400&h=300&fit=crop');">
                 <div class="card-img-overlay"></div>
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
               </div>
@@ -113,7 +113,7 @@ import { OrdemServico } from '../../core/types/types';
               <span class="service-price">A partir de R$ 119</span>
             </div>
             <div class="service-card">
-              <div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=400&h=300&fit=crop');">
+              <div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=400&h=300&fit=crop');">
                 <div class="card-img-overlay"></div>
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
               </div>

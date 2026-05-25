@@ -14,14 +14,28 @@ import { AuthService } from '../../core/services/auth.service';
       <div class="login-container">
         <div class="login-card">
           <div class="login-header">
-            <div class="login-logo">
-              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.5">
-                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
-              </svg>
-              <span>Prime <span class="accent">Assistência</span></span>
+            <div class="login-welcome">
+              <span class="welcome-tag">Bem-vindo à</span>
+              <div class="login-logo">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.5">
+                  <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                </svg>
+                <span>Prime <span class="accent">Assistência</span></span>
+              </div>
             </div>
-            <h1>Área do Técnico</h1>
-            <p>Faça login para acessar o painel de ordens de serviço</p>
+            <p class="login-sub">{{ papel === 'funcionario' ? 'Faça login para acessar o painel de ordens de serviço' : 'Acompanhe seus pedidos, converse conosco e abra chamados' }}</p>
+          </div>
+
+          <!-- Role Selector -->
+          <div class="papel-switch">
+            <button class="papel-btn" [class.active]="papel === 'funcionario'" (click)="papel = 'funcionario'">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              Sou Técnico
+            </button>
+            <button class="papel-btn" [class.active]="papel === 'cliente'" (click)="papel = 'cliente'">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Sou Cliente
+            </button>
           </div>
 
           @if (erro) {
@@ -60,6 +74,13 @@ import { AuthService } from '../../core/services/auth.service';
           <div class="login-footer">
             <a routerLink="/">← Voltar ao site</a>
           </div>
+
+          @if (papel === 'cliente') {
+            <div class="login-info">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              Ao entrar, você poderá acompanhar o status dos seus pedidos, conversar com nossos técnicos e abrir chamados de suporte.
+            </div>
+          }
         </div>
       </div>
     </div>
@@ -80,32 +101,47 @@ import { AuthService } from '../../core/services/auth.service';
     }
     .login-container {
       position: relative; z-index: 1;
-      width: 100%; max-width: 420px; padding: 24px;
+      width: 100%; max-width: 440px; padding: 24px;
     }
     .login-card {
       background: rgba(22,22,34,.85);
       backdrop-filter: blur(24px);
       -webkit-backdrop-filter: blur(24px);
       border: 1px solid rgba(255,255,255,.06);
-      border-radius: 20px; padding: 40px 36px;
+      border-radius: 20px; padding: 36px 32px;
       box-shadow: 0 24px 80px rgba(0,0,0,.5);
     }
-    .login-header { text-align: center; margin-bottom: 32px; }
-    .login-logo { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 1.2rem; font-weight: 700; color: var(--text); margin-bottom: 20px; }
+    .login-header { text-align: center; margin-bottom: 24px; }
+    .login-welcome { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-bottom: 12px; }
+    .welcome-tag { font-size: .78rem; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: .08em; }
+    .login-logo { display: flex; align-items: center; gap: 10px; font-size: 1.3rem; font-weight: 800; color: var(--text); }
     .login-logo .accent { color: var(--primary); }
-    .login-header h1 { font-size: 1.5rem; font-weight: 700; color: var(--text); margin-bottom: 8px; }
-    .login-header p { font-size: .88rem; color: var(--text-muted); }
+    .login-sub { font-size: .84rem; color: var(--text-muted); line-height: 1.4; }
+
+    .papel-switch {
+      display: flex; gap: 8px; margin-bottom: 24px;
+      background: rgba(255,255,255,.03); border-radius: 10px; padding: 4px;
+    }
+    .papel-btn {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 10px; border-radius: 8px; border: none;
+      background: transparent; color: var(--text-muted); font-size: .85rem; font-weight: 600;
+      cursor: pointer; transition: all .2s;
+    }
+    .papel-btn:hover { color: var(--text); background: rgba(255,255,255,.04); }
+    .papel-btn.active { background: rgba(59,130,246,.15); color: var(--primary); }
+    .papel-btn svg { flex-shrink: 0; }
 
     .login-erro {
       display: flex; align-items: center; gap: 10px;
-      padding: 12px 16px; margin-bottom: 24px;
+      padding: 12px 16px; margin-bottom: 20px;
       background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.2);
-      border-radius: 10px; color: #f87171; font-size: .88rem;
+      border-radius: 10px; color: #f87171; font-size: .85rem;
     }
 
-    .login-form { display: flex; flex-direction: column; gap: 20px; }
-    .field { display: flex; flex-direction: column; gap: 8px; }
-    .field label { font-size: .82rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; }
+    .login-form { display: flex; flex-direction: column; gap: 18px; }
+    .field { display: flex; flex-direction: column; gap: 7px; }
+    .field label { font-size: .8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; }
     .field-input {
       display: flex; align-items: center; gap: 12px;
       background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
@@ -122,7 +158,7 @@ import { AuthService } from '../../core/services/auth.service';
 
     .btn-login {
       display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-      width: 100%; padding: 15px 24px; margin-top: 8px;
+      width: 100%; padding: 15px 24px; margin-top: 4px;
       background: linear-gradient(135deg, var(--primary), #6366f1);
       color: #fff; border: none; border-radius: 10px;
       font-size: 1rem; font-weight: 600; cursor: pointer;
@@ -138,12 +174,21 @@ import { AuthService } from '../../core/services/auth.service';
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    .login-footer { text-align: center; margin-top: 28px; }
-    .login-footer a { color: var(--text-muted); font-size: .88rem; text-decoration: none; transition: color .2s; }
+    .login-footer { text-align: center; margin-top: 24px; }
+    .login-footer a { color: var(--text-muted); font-size: .85rem; text-decoration: none; transition: color .2s; }
     .login-footer a:hover { color: var(--primary); }
+
+    .login-info {
+      display: flex; align-items: flex-start; gap: 8px;
+      margin-top: 20px; padding: 12px 14px;
+      background: rgba(59,130,246,.06); border: 1px solid rgba(59,130,246,.1);
+      border-radius: 10px; font-size: .78rem; color: var(--text-muted); line-height: 1.5;
+    }
+    .login-info svg { flex-shrink: 0; margin-top: 2px; color: var(--primary); }
   `]
 })
 export class LoginComponent {
+  papel: 'funcionario' | 'cliente' = 'funcionario';
   email = '';
   senha = '';
   erro = '';
@@ -161,11 +206,16 @@ export class LoginComponent {
     }
     this.loading = true;
     this.erro = '';
-    this.auth.login(this.email, this.senha).subscribe({
+
+    const obs = this.papel === 'funcionario'
+      ? this.auth.loginFuncionario(this.email, this.senha)
+      : this.auth.loginCliente(this.email, this.senha);
+
+    obs.subscribe({
       next: user => {
         this.loading = false;
         if (user) {
-          this.router.navigate(['/area-tecnico']);
+          this.router.navigate([this.papel === 'funcionario' ? '/area-tecnico' : '/minha-conta']);
         } else {
           this.erro = 'E-mail ou senha incorretos.';
         }

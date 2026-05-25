@@ -12,6 +12,10 @@ export class EquipamentosService {
     return this.http.get<Equipamento[]>(this.API);
   }
 
+  listarPorCliente(clienteId: number): Observable<Equipamento[]> {
+    return this.http.get<Equipamento[]>(`${this.API}?clienteId=${clienteId}`);
+  }
+
   buscarPorId(id: number | string): Observable<Equipamento> {
     return this.http.get<Equipamento>(`${this.API}/${id}`);
   }

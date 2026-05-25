@@ -16,6 +16,7 @@ export interface Cliente {
   endereco: string;
   cpfCnpj?: string;
   tipo?: 'PF' | 'PJ';
+  senha?: string;
   ativo: boolean;
 }
 
@@ -61,6 +62,27 @@ export interface EstoqueItem {
   valorCusto: number;
   valorVenda: number;
   categoria: string;
+}
+
+export interface Mensagem {
+  id?: number;
+  ordemId: number;
+  remetente: 'cliente' | 'tecnico';
+  remetenteNome: string;
+  texto: string;
+  data: string;
+}
+
+export interface Chamado {
+  id?: number;
+  clienteId: number;
+  clienteNome: string;
+  equipamentoId?: number;
+  equipamentoNome?: string;
+  descricao: string;
+  status: 'Aberto' | 'Em Andamento' | 'Resolvido' | 'Fechado';
+  data: string;
+  observacoes?: string;
 }
 
 export interface WifiConfig {

@@ -1,17 +1,19 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, map, of, switchMap } from 'rxjs';
-import { Funcionario } from '../types/types';
+import { BehaviorSubject, Observable, map } from 'rxjs';
+import { Funcionario, Cliente } from '../types/types';
 
-interface AuthUser {
+export type Papel = 'funcionario' | 'cliente';
+
+export interface AuthUser {
   id: number;
   nome: string;
-  cargo: string;
+  papel: Papel;
+  cargo?: string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly API = 'http://localhost:3000/funcionarios';
   private userSubject = new BehaviorSubject<AuthUser | null>(null);
 
   user$ = this.userSubject.asObservable();
@@ -23,12 +25,25 @@ export class AuthService {
     }
   }
 
-  login(email: string, senha: string): Observable<AuthUser | null> {
-    return this.http.get<Funcionario[]>(`${this.API}?email=${encodeURIComponent(email)}`).pipe(
+  loginFuncionario(email: string, senha: string): Observable<AuthUser | null> {
+    return this.http.get<Funcionario[]>(`http://localhost:3000/funcionarios?email=${encodeURIComponent(email)}`).pipe(
       map(list => {
         const found = list.find(f => f.senha === senha);
         if (!found || !found.id) return null;
-        const user: AuthUser = { id: found.id, nome: found.nome, cargo: found.cargo };
+        const user: AuthUser = { id: found.id, nome: found.nome, papel: 'funcionario', cargo: found.cargo };
+        localStorage.setItem('auth_user', JSON.stringify(user));
+        this.userSubject.next(user);
+        return user;
+      })
+    );
+  }
+
+  loginCliente(email: string, senha: string): Observable<AuthUser | null> {
+    return this.http.get<Cliente[]>(`http://localhost:3000/clientes?email=${encodeURIComponent(email)}`).pipe(
+      map(list => {
+        const found = list.find(c => c.senha === senha && c.ativo);
+        if (!found || !found.id) return null;
+        const user: AuthUser = { id: found.id, nome: found.nome, papel: 'cliente' };
         localStorage.setItem('auth_user', JSON.stringify(user));
         this.userSubject.next(user);
         return user;
@@ -47,5 +62,13 @@ export class AuthService {
 
   isLoggedIn(): boolean {
     return this.userSubject.value !== null;
+  }
+
+  isCliente(): boolean {
+    return this.userSubject.value?.papel === 'cliente';
+  }
+
+  isFuncionario(): boolean {
+    return this.userSubject.value?.papel === 'funcionario';
   }
 }

@@ -43,6 +43,7 @@
       "endereco": "Rua A, 123",
       "cpfCnpj": "123.456.789-00",
       "tipo": "PF",
+      "senha": "1234",
       "ativo": true
     },
     {
@@ -53,6 +54,7 @@
       "endereco": "Rua B, 456",
       "cpfCnpj": "987.654.321-00",
       "tipo": "PF",
+      "senha": "1234",
       "ativo": true
     },
     {
@@ -62,6 +64,7 @@
       "endereco": "Av. Comercial, 1000",
       "cpfCnpj": "12.345.678/0001-90",
       "tipo": "PJ",
+      "senha": "1234",
       "ativo": true,
       "id": 3
     }
@@ -235,6 +238,53 @@
       "valorCusto": 95,
       "valorVenda": 159,
       "categoria": "Armazenamento"
+    }
+  ],
+  "mensagens": [
+    {
+      "id": 1,
+      "ordemId": 1,
+      "remetente": "cliente",
+      "remetenteNome": "Carlos Santos",
+      "texto": "Olá! Gostaria de saber se já tem previsão para o reparo do meu iPhone.",
+      "data": "2026-05-21T14:30:00"
+    },
+    {
+      "id": 2,
+      "ordemId": 1,
+      "remetente": "tecnico",
+      "remetenteNome": "João Silva",
+      "texto": "Olá Carlos! A tela já chegou, estou finalizando o reparo hoje.",
+      "data": "2026-05-21T16:45:00"
+    },
+    {
+      "id": 3,
+      "ordemId": 1,
+      "remetente": "cliente",
+      "remetenteNome": "Carlos Santos",
+      "texto": "Que ótimo! Obrigado pela atualização.",
+      "data": "2026-05-21T17:00:00"
+    },
+    {
+      "id": 4,
+      "ordemId": 2,
+      "remetente": "cliente",
+      "remetenteNome": "Ana Oliveira",
+      "texto": "Meu notebook ainda está em análise? Preciso de uma previsão.",
+      "data": "2026-05-24T09:15:00"
+    }
+  ],
+  "chamados": [
+    {
+      "id": 1,
+      "clienteId": 1,
+      "clienteNome": "Carlos Santos",
+      "equipamentoId": 1,
+      "equipamentoNome": "Apple iPhone 12",
+      "descricao": "Após o reparo da tela, o sensor de proximidade não está funcionando.",
+      "status": "Aberto",
+      "data": "2026-05-24",
+      "observacoes": ""
     }
   ]
 }

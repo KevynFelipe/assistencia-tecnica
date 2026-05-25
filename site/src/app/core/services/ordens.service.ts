@@ -12,6 +12,10 @@ export class OrdensService {
     return this.http.get<OrdemServico[]>(this.API);
   }
 
+  listarPorCliente(clienteId: number): Observable<OrdemServico[]> {
+    return this.http.get<OrdemServico[]>(`${this.API}?clienteId=${clienteId}`);
+  }
+
   buscarPorId(id: number | string): Observable<OrdemServico> {
     return this.http.get<OrdemServico>(`${this.API}/${id}`);
   }

@@ -8,7 +8,7 @@ import { RouterModule } from '@angular/router';
   template: `
     <header class="header">
       <div class="container">
-        <a class="logo" routerLink="/">Assistência <span class="accent">Técnica</span></a>
+        <a class="logo" routerLink="/">Prime <span class="accent">Assistência</span></a>
         <nav class="nav">
           <a routerLink="/area-tecnico" class="nav-highlight">Área do Técnico</a>
           <a href="#servicos">Serviços</a>

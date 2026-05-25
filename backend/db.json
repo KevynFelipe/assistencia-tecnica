@@ -5,28 +5,107 @@
       "nome": "João Silva",
       "cargo": "Técnico",
       "telefone": "11999999999",
-      "email": "joao@email.com"
+      "email": "joao@email.com",
+      "salario": 3200,
+      "senha": "1234"
     },
     {
       "id": 2,
       "nome": "Maria Souza",
       "cargo": "Atendente",
       "telefone": "11988888888",
-      "email": "maria@email.com"
+      "email": "maria@email.com",
+      "salario": 2800
     },
     {
       "nome": "Fulano",
       "cargo": "Montador",
       "telefone": "11222333444",
-      "email": "email@email.com",
+      "email": "fulano@email.com",
+      "salario": 2500,
       "id": 3
     },
     {
       "nome": "Beltrano",
       "cargo": "Técnico",
       "telefone": "1122232233223",
-      "email": "email|@email.com",
+      "email": "beltrano@email.com",
+      "salario": 3200,
       "id": 4
+    }
+  ],
+  "clientes": [
+    {
+      "id": 1,
+      "nome": "Carlos Santos",
+      "email": "carlos@email.com",
+      "telefone": "11977777777",
+      "endereco": "Rua A, 123",
+      "cpfCnpj": "123.456.789-00",
+      "tipo": "PF",
+      "ativo": true
+    },
+    {
+      "id": 2,
+      "nome": "Ana Oliveira",
+      "email": "ana@email.com",
+      "telefone": "11966666666",
+      "endereco": "Rua B, 456",
+      "cpfCnpj": "987.654.321-00",
+      "tipo": "PF",
+      "ativo": true
+    },
+    {
+      "nome": "Tech Solutions Ltda",
+      "email": "contato@techsolutions.com",
+      "telefone": "11333333333",
+      "endereco": "Av. Comercial, 1000",
+      "cpfCnpj": "12.345.678/0001-90",
+      "tipo": "PJ",
+      "ativo": true,
+      "id": 3
+    }
+  ],
+  "equipamentos": [
+    {
+      "id": 1,
+      "clienteId": 1,
+      "clienteNome": "Carlos Santos",
+      "marca": "Apple",
+      "modelo": "iPhone 12",
+      "serial": "F2ABCD1234",
+      "imei": "351234567891234",
+      "observacoes": "Display original, sem histórico de reparos"
+    },
+    {
+      "id": 2,
+      "clienteId": 1,
+      "clienteNome": "Carlos Santos",
+      "marca": "Samsung",
+      "modelo": "Galaxy S23",
+      "serial": "R5XYZ78901",
+      "imei": "359876543210987",
+      "observacoes": ""
+    },
+    {
+      "id": 3,
+      "clienteId": 2,
+      "clienteNome": "Ana Oliveira",
+      "marca": "Dell",
+      "modelo": "Inspiron 15",
+      "serial": "DELL123456",
+      "imei": "",
+      "observacoes": "Memória expandida para 16GB"
+    },
+    {
+      "id": 4,
+      "clienteId": 2,
+      "clienteNome": "Ana Oliveira",
+      "marca": "Sony",
+      "modelo": "PlayStation 5",
+      "serial": "PS5-ABCD-12345",
+      "imei": "",
+      "observacoes": "Console fat, sem modificações"
     }
   ],
   "ordens": [
@@ -36,14 +115,19 @@
       "tecnicoNome": "João Silva",
       "clienteId": 1,
       "clienteNome": "Carlos Santos",
+      "equipamentoId": 1,
+      "equipamentoNome": "Apple iPhone 12",
       "aparelho": "iPhone 12",
       "tipoAparelho": "Smartphone",
       "defeito": "Tela quebrada - display não acende",
-      "status": "Em Reparo",
+      "status": "Orçamento Aprovado",
+      "prioridade": "Alta",
       "dataEntrada": "2026-05-20",
+      "tempoEstimado": 3,
       "valorServico": 120,
       "valorPecas": 179,
       "valorTotal": 299,
+      "diagnosticos": "Display danificado, touch não responde. Necessário troca completa do conjunto tela.",
       "observacoes": "Aguardando chegar a tela"
     },
     {
@@ -52,14 +136,19 @@
       "tecnicoNome": "João Silva",
       "clienteId": 2,
       "clienteNome": "Ana Oliveira",
+      "equipamentoId": 3,
+      "equipamentoNome": "Dell Inspiron 15",
       "aparelho": "Notebook Dell Inspiron",
       "tipoAparelho": "Notebook",
       "defeito": "Não liga, led de carga acende mas não dá boot",
-      "status": "Diagnosticando",
+      "status": "Em Análise",
+      "prioridade": "Normal",
       "dataEntrada": "2026-05-22",
+      "tempoEstimado": 5,
       "valorServico": 80,
       "valorTotal": 80,
-      "observacoes": "Suspeita de falha na placa-mãe"
+      "diagnosticos": "Suspeita de falha na placa-mãe. Testando componentes de alimentação.",
+      "observacoes": ""
     },
     {
       "id": 3,
@@ -67,15 +156,20 @@
       "tecnicoNome": "Beltrano",
       "clienteId": 1,
       "clienteNome": "Carlos Santos",
+      "equipamentoId": 2,
+      "equipamentoNome": "Samsung Galaxy S23",
       "aparelho": "Samsung Galaxy S23",
       "tipoAparelho": "Smartphone",
       "defeito": "Bateria viciada - não carrega acima de 15%",
       "status": "Aguardando Peças",
+      "prioridade": "Normal",
       "dataEntrada": "2026-05-18",
+      "tempoEstimado": 2,
       "valorServico": 80,
       "valorPecas": 149,
       "valorTotal": 229,
-      "observacoes": ""
+      "diagnosticos": "Bateria com capacidade reduzida para 12%. Substituição necessária.",
+      "observacoes": "Aguardando chegada da bateria"
     },
     {
       "id": 4,
@@ -83,28 +177,64 @@
       "tecnicoNome": "Beltrano",
       "clienteId": 2,
       "clienteNome": "Ana Oliveira",
+      "equipamentoId": 4,
+      "equipamentoNome": "Sony PlayStation 5",
       "aparelho": "PS5",
       "tipoAparelho": "Console",
       "defeito": "Superaquecimento - desliga após 30min de uso",
-      "status": "Recebido",
+      "status": "Na Fila",
+      "prioridade": "Urgente",
       "dataEntrada": "2026-05-23",
-      "observacoes": ""
+      "tempoEstimado": 4,
+      "diagnosticos": "",
+      "observacoes": "Cliente relatou que já fez limpeza simples mas não resolveu"
     }
   ],
-  "clientes": [
+  "estoque": [
     {
       "id": 1,
-      "nome": "Carlos Santos",
-      "email": "carlos@email.com",
-      "telefone": "11977777777",
-      "endereco": "Rua A, 123"
+      "nome": "Tela iPhone 12 Original",
+      "quantidade": 3,
+      "estoqueMinimo": 5,
+      "valorCusto": 120,
+      "valorVenda": 179,
+      "categoria": "Tela"
     },
     {
       "id": 2,
-      "nome": "Ana Oliveira",
-      "email": "ana@email.com",
-      "telefone": "11966666666",
-      "endereco": "Rua B, 456"
+      "nome": "Bateria Samsung S23",
+      "quantidade": 2,
+      "estoqueMinimo": 3,
+      "valorCusto": 95,
+      "valorVenda": 149,
+      "categoria": "Bateria"
+    },
+    {
+      "id": 3,
+      "nome": "Pasta Térmica Arctic MX-4",
+      "quantidade": 15,
+      "estoqueMinimo": 5,
+      "valorCusto": 8,
+      "valorVenda": 25,
+      "categoria": "Consumível"
+    },
+    {
+      "id": 4,
+      "nome": "Fonte Notebook Dell 65W",
+      "quantidade": 1,
+      "estoqueMinimo": 2,
+      "valorCusto": 85,
+      "valorVenda": 149,
+      "categoria": "Fonte"
+    },
+    {
+      "id": 5,
+      "nome": "SSD Kingston 240GB",
+      "quantidade": 8,
+      "estoqueMinimo": 3,
+      "valorCusto": 95,
+      "valorVenda": 159,
+      "categoria": "Armazenamento"
     }
   ]
 }

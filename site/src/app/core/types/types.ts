@@ -4,6 +4,8 @@ export interface Funcionario {
   cargo: string;
   telefone: string;
   email: string;
+  salario?: number;
+  senha?: string;
 }
 
 export interface Cliente {
@@ -12,6 +14,20 @@ export interface Cliente {
   email: string;
   telefone: string;
   endereco: string;
+  cpfCnpj?: string;
+  tipo?: 'PF' | 'PJ';
+  ativo: boolean;
+}
+
+export interface Equipamento {
+  id?: number;
+  clienteId: number;
+  clienteNome: string;
+  marca: string;
+  modelo: string;
+  serial?: string;
+  imei?: string;
+  observacoes?: string;
 }
 
 export interface OrdemServico {
@@ -20,14 +36,38 @@ export interface OrdemServico {
   tecnicoNome: string;
   clienteId: number;
   clienteNome: string;
+  equipamentoId?: number;
+  equipamentoNome?: string;
   aparelho: string;
   tipoAparelho: string;
   defeito: string;
-  status: 'Recebido' | 'Diagnosticando' | 'Aguardando Peças' | 'Em Reparo' | 'Pronto' | 'Entregue';
+  status: 'Na Fila' | 'Em Análise' | 'Orçamento Aprovado' | 'Pronto' | 'Entregue';
+  prioridade: 'Baixa' | 'Normal' | 'Alta' | 'Urgente';
   dataEntrada: string;
   dataSaida?: string;
+  tempoEstimado?: number;
   valorServico?: number;
   valorPecas?: number;
   valorTotal?: number;
+  diagnosticos?: string;
   observacoes?: string;
+}
+
+export interface EstoqueItem {
+  id?: number;
+  nome: string;
+  quantidade: number;
+  estoqueMinimo: number;
+  valorCusto: number;
+  valorVenda: number;
+  categoria: string;
+}
+
+export interface WifiConfig {
+  id?: number;
+  ssid: string;
+  senha: string;
+  seguranca: 'WPA2' | 'WPA3' | 'Aberta';
+  banda: '2.4GHz' | '5GHz' | 'Dupla';
+  ativo: boolean;
 }

@@ -5,7 +5,8 @@ import { RouterModule } from '@angular/router';
 import { OrdensService } from '../../core/services/ordens.service';
 import { ClientesService } from '../../core/services/clientes.service';
 import { FuncionariosService } from '../../core/services/funcionarios.service';
-import { OrdemServico, Cliente, Funcionario } from '../../core/types/types';
+import { EquipamentosService } from '../../core/services/equipamentos.service';
+import { OrdemServico, Cliente, Funcionario, Equipamento } from '../../core/types/types';
 
 @Component({
   selector: 'app-area-tecnico',
@@ -15,7 +16,7 @@ import { OrdemServico, Cliente, Funcionario } from '../../core/types/types';
     <div class="dashboard">
       <header class="dash-header">
         <div class="dash-header-inner">
-          <a class="dash-logo" routerLink="/">Assistência <span class="accent">Técnica</span></a>
+          <a class="dash-logo" routerLink="/">Prime <span class="accent">Assistência</span></a>
           <span class="dash-badge">Área do Técnico</span>
         </div>
       </header>
@@ -26,10 +27,9 @@ import { OrdemServico, Cliente, Funcionario } from '../../core/types/types';
           <div class="dash-heading-actions">
             <select [(ngModel)]="filtroStatus" (change)="aplicarFiltro()" class="inp inp-sm">
               <option value="">Todos os status</option>
-              <option value="Recebido">Recebido</option>
-              <option value="Diagnosticando">Diagnosticando</option>
-              <option value="Aguardando Peças">Aguardando Peças</option>
-              <option value="Em Reparo">Em Reparo</option>
+              <option value="Na Fila">Na Fila</option>
+              <option value="Em Análise">Em Análise</option>
+              <option value="Orçamento Aprovado">Orçamento Aprovado</option>
               <option value="Pronto">Pronto</option>
               <option value="Entregue">Entregue</option>
             </select>
@@ -55,27 +55,31 @@ import { OrdemServico, Cliente, Funcionario } from '../../core/types/types';
                   <option [ngValue]="c.id">{{ c.nome }}</option>
                 }
               </select>
+              <select [(ngModel)]="form.equipamentoId" class="inp">
+                <option [ngValue]="0" disabled>Selecione equipamento</option>
+                @for (e of equipamentos; track e.id) {
+                  <option [ngValue]="e.id">{{ e.marca }} {{ e.modelo }} - {{ e.clienteNome }}</option>
+                }
+              </select>
               <input [(ngModel)]="form.aparelho" placeholder="Aparelho (ex: iPhone 12)" class="inp"/>
-              <select [(ngModel)]="form.tipoAparelho" class="inp">
-                <option value="">Tipo de aparelho</option>
-                <option value="Smartphone">Smartphone</option>
-                <option value="Tablet">Tablet</option>
-                <option value="Notebook">Notebook</option>
-                <option value="Desktop">Desktop</option>
-                <option value="Console">Console</option>
-                <option value="TV/Monitor">TV/Monitor</option>
-                <option value="Outro">Outro</option>
+              <input [(ngModel)]="form.tipoAparelho" placeholder="Tipo (smartphone, notebook...)" class="inp"/>
+              <select [(ngModel)]="form.prioridade" class="inp">
+                <option value="Normal">Prioridade: Normal</option>
+                <option value="Baixa">Prioridade: Baixa</option>
+                <option value="Alta">Prioridade: Alta</option>
+                <option value="Urgente">Prioridade: Urgente</option>
               </select>
               <select [(ngModel)]="form.status" class="inp">
-                <option value="Recebido">Recebido</option>
-                <option value="Diagnosticando">Diagnosticando</option>
-                <option value="Aguardando Peças">Aguardando Peças</option>
-                <option value="Em Reparo">Em Reparo</option>
+                <option value="Na Fila">Na Fila</option>
+                <option value="Em Análise">Em Análise</option>
+                <option value="Orçamento Aprovado">Orçamento Aprovado</option>
                 <option value="Pronto">Pronto</option>
                 <option value="Entregue">Entregue</option>
               </select>
+              <input [(ngModel)]="form.tempoEstimado" type="number" placeholder="Tempo estimado (dias)" class="inp"/>
             </div>
-            <textarea [(ngModel)]="form.defeito" placeholder="Defeito relatado" class="inp inp-area" rows="3"></textarea>
+            <textarea [(ngModel)]="form.defeito" placeholder="Defeito relatado" class="inp inp-area" rows="2"></textarea>
+            <textarea [(ngModel)]="form.diagnosticos" placeholder="Diagnóstico técnico" class="inp inp-area" rows="2"></textarea>
             <div class="form-grid form-grid-3">
               <input [(ngModel)]="form.valorServico" type="number" placeholder="Valor mão de obra" class="inp"/>
               <input [(ngModel)]="form.valorPecas" type="number" placeholder="Valor peças" class="inp"/>
@@ -106,37 +110,41 @@ import { OrdemServico, Cliente, Funcionario } from '../../core/types/types';
           } @else {
             <table>
               <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Técnico</th>
-                  <th>Cliente</th>
-                  <th>Aparelho</th>
-                  <th>Defeito</th>
-                  <th>Status</th>
-                  <th>Entrada</th>
-                  <th>Valor</th>
-                  <th>Ações</th>
-                </tr>
+                  <tr>
+                    <th>ID</th>
+                    <th>Prioridade</th>
+                    <th>Técnico</th>
+                    <th>Cliente</th>
+                    <th>Aparelho</th>
+                    <th>Status</th>
+                    <th>Entrada</th>
+                    <th>Prev.</th>
+                    <th>Valor</th>
+                    <th>Ações</th>
+                  </tr>
               </thead>
               <tbody>
-                @for (o of ordensFiltradas; track o.id) {
-                  <tr>
-                    <td>{{ o.id }}</td>
-                    <td>{{ o.tecnicoNome }}</td>
-                    <td>{{ o.clienteNome }}</td>
-                    <td>{{ o.aparelho }}</td>
-                    <td class="cell-defeito">{{ o.defeito }}</td>
-                    <td>
-                      <span class="status-badge" [class]="statusClass(o.status)">{{ o.status }}</span>
-                    </td>
-                    <td>{{ o.dataEntrada }}</td>
-                    <td>{{ o.valorTotal ? 'R$ ' + o.valorTotal.toFixed(2) : '-' }}</td>
-                    <td class="actions">
-                      <button class="btn-sm btn-blue" (click)="editar(o)">Editar</button>
-                      <button class="btn-sm btn-red" (click)="excluir(o)">Excluir</button>
-                    </td>
-                  </tr>
-                }
+                  @for (o of ordensFiltradas; track o.id) {
+                    <tr>
+                      <td>{{ o.id }}</td>
+                      <td>
+                        <span class="prio-badge" [class]="'prio-' + o.prioridade.toLowerCase()">{{ o.prioridade }}</span>
+                      </td>
+                      <td>{{ o.tecnicoNome }}</td>
+                      <td>{{ o.clienteNome }}</td>
+                      <td>{{ o.aparelho }}</td>
+                      <td>
+                        <span class="status-badge" [class]="statusClass(o.status)">{{ o.status }}</span>
+                      </td>
+                      <td>{{ o.dataEntrada }}</td>
+                      <td>{{ o.tempoEstimado ? o.tempoEstimado + 'd' : '-' }}</td>
+                      <td>{{ o.valorTotal ? 'R$ ' + o.valorTotal.toFixed(2) : '-' }}</td>
+                      <td class="actions">
+                        <button class="btn-sm btn-blue" (click)="editar(o)">Editar</button>
+                        <button class="btn-sm btn-red" (click)="excluir(o)">Excluir</button>
+                      </td>
+                    </tr>
+                  }
               </tbody>
             </table>
           }
@@ -219,12 +227,21 @@ import { OrdemServico, Cliente, Funcionario } from '../../core/types/types';
       display: inline-block; padding: 4px 12px; border-radius: 20px;
       font-size: .75rem; font-weight: 600; white-space: nowrap;
     }
-    .status-recebido { background: rgba(59,130,246,.12); color: #60a5fa; }
-    .status-diagnosticando { background: rgba(234,179,8,.12); color: #fbbf24; }
-    .status-aguardando-peças { background: rgba(249,115,22,.12); color: #fb923c; }
-    .status-em-reparo { background: rgba(168,85,247,.12); color: #c084fc; }
+    .status-na-fila { background: rgba(59,130,246,.12); color: #60a5fa; }
+    .status-em-análise { background: rgba(234,179,8,.12); color: #fbbf24; }
+    .status-orçamento-aprovado { background: rgba(168,85,247,.12); color: #c084fc; }
     .status-pronto { background: rgba(34,197,94,.12); color: #4ade80; }
     .status-entregue { background: rgba(107,114,128,.12); color: #9ca3af; }
+
+    .prio-badge {
+      display: inline-block; padding: 3px 10px; border-radius: 6px;
+      font-size: .7rem; font-weight: 700; white-space: nowrap; text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .prio-baixa { background: rgba(107,114,128,.12); color: #9ca3af; }
+    .prio-normal { background: rgba(59,130,246,.12); color: #60a5fa; }
+    .prio-alta { background: rgba(249,115,22,.12); color: #fb923c; }
+    .prio-urgente { background: rgba(239,68,68,.12); color: #f87171; }
 
     .btn-primary {
       display: inline-flex; align-items: center; gap: 8px;
@@ -264,11 +281,13 @@ export class AreaTecnicoComponent implements OnInit {
   constructor(
     private ordensService: OrdensService,
     private clientesService: ClientesService,
-    private funcionariosService: FuncionariosService
+    private funcionariosService: FuncionariosService,
+    private equipamentosService: EquipamentosService
   ) {}
 
   funcionarios: Funcionario[] = [];
   clientes: Cliente[] = [];
+  equipamentos: Equipamento[] = [];
   ordens: OrdemServico[] = [];
   ordensFiltradas: OrdemServico[] = [];
   filtroStatus = '';
@@ -288,7 +307,8 @@ export class AreaTecnicoComponent implements OnInit {
   carregarDados() {
     this.loading = true;
     this.funcionariosService.listar().subscribe(f => this.funcionarios = f);
-    this.clientesService.listar().subscribe(c => this.clientes = c);
+    this.clientesService.listar().subscribe(c => this.clientes = c.filter(c => c.ativo));
+    this.equipamentosService.listar().subscribe(e => this.equipamentos = e);
     this.ordensService.listar().subscribe({
       next: data => {
         this.ordens = data;
@@ -323,20 +343,26 @@ export class AreaTecnicoComponent implements OnInit {
     this.erro = '';
     const tecnico = this.funcionarios.find(f => f.id === this.form.tecnicoId);
     const cliente = this.clientes.find(c => c.id === this.form.clienteId);
+    const equip = this.equipamentos.find(e => e.id === this.form.equipamentoId);
 
     const payload: OrdemServico = {
       tecnicoId: this.form.tecnicoId,
       tecnicoNome: tecnico?.nome ?? '',
       clienteId: this.form.clienteId,
       clienteNome: cliente?.nome ?? '',
+      equipamentoId: this.form.equipamentoId,
+      equipamentoNome: equip ? `${equip.marca} ${equip.modelo}` : undefined,
       aparelho: this.form.aparelho,
       tipoAparelho: this.form.tipoAparelho ?? '',
       defeito: this.form.defeito,
-      status: (this.form.status as OrdemServico['status']) ?? 'Recebido',
+      status: (this.form.status as OrdemServico['status']) ?? 'Na Fila',
+      prioridade: (this.form.prioridade as OrdemServico['prioridade']) ?? 'Normal',
       dataEntrada: this.editId ? (this.form.dataEntrada ?? new Date().toISOString().split('T')[0]) : new Date().toISOString().split('T')[0],
+      tempoEstimado: this.form.tempoEstimado ? Number(this.form.tempoEstimado) : undefined,
       valorServico: this.form.valorServico ? Number(this.form.valorServico) : undefined,
       valorPecas: this.form.valorPecas ? Number(this.form.valorPecas) : undefined,
       valorTotal: (this.form.valorServico ? Number(this.form.valorServico) : 0) + (this.form.valorPecas ? Number(this.form.valorPecas) : 0) || undefined,
+      diagnosticos: this.form.diagnosticos,
       observacoes: this.form.observacoes
     };
 

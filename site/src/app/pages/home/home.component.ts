@@ -1,15 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { FuncionariosService } from '../../core/services/funcionarios.service';
-import { ClientesService } from '../../core/services/clientes.service';
-import { Funcionario, Cliente } from '../../core/types/types';
+import { FuncionariosCrudComponent } from '../../components/crud/funcionarios-crud.component';
+import { ClientesCrudComponent } from '../../components/crud/clientes-crud.component';
+import { EquipamentosCrudComponent } from '../../components/crud/equipamentos-crud.component';
+import { EstoqueCrudComponent } from '../../components/crud/estoque-crud.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, FuncionariosCrudComponent, ClientesCrudComponent, EquipamentosCrudComponent, EstoqueCrudComponent],
   template: `
     <div class="landing">
 
@@ -18,7 +19,7 @@ import { Funcionario, Cliente } from '../../core/types/types';
         <div class="hero-bg"></div>
         <div class="hero-content">
           <div class="hero-badge">Especialistas em Reparos</div>
-          <h1>Assistência Técnica</h1>
+          <h1>Prime <span class="accent">Assistência</span></h1>
           <p class="hero-sub">Seu dispositivo funcionando como novo. Rapidez e qualidade em cada reparo.</p>
           <p class="hero-desc">Smartphones, notebooks, desktops, tablets e muito mais. Orçamento sem compromisso.</p>
           <div class="hero-actions">
@@ -216,226 +217,18 @@ import { Funcionario, Cliente } from '../../core/types/types';
           <div class="tabs">
             <button class="tab" [class.active]="activeTab === 'funcionarios'" (click)="activeTab = 'funcionarios'">Funcionários</button>
             <button class="tab" [class.active]="activeTab === 'clientes'" (click)="activeTab = 'clientes'">Clientes</button>
+            <button class="tab" [class.active]="activeTab === 'equipamentos'" (click)="activeTab = 'equipamentos'">Equipamentos</button>
+            <button class="tab" [class.active]="activeTab === 'estoque'" (click)="activeTab = 'estoque'">Estoque</button>
           </div>
 
           @if (activeTab === 'funcionarios') {
-            <div class="crud-content">
-              <div class="crud-bar">
-                <button class="btn-primary" (click)="showAddForm = !showAddForm">
-                  {{ showAddForm ? 'Cancelar' : '+ Novo Funcionário' }}
-                </button>
-              </div>
-
-              @if (showAddForm) {
-                <div class="form-card">
-                  <h3>Novo Funcionário</h3>
-                  <div class="form-grid">
-                    <input [(ngModel)]="funcionarioForm.nome" placeholder="Nome" class="inp"/>
-                    <input [(ngModel)]="funcionarioForm.cargo" placeholder="Cargo" class="inp"/>
-                    <input [(ngModel)]="funcionarioForm.telefone" placeholder="Telefone" class="inp"/>
-                    <input [(ngModel)]="funcionarioForm.email" placeholder="Email" class="inp"/>
-                  </div>
-                  <button class="btn-primary" [disabled]="fLoading" (click)="incluirFuncionario()">
-                    @if (fLoading) { Salvando... } @else { Salvar }
-                  </button>
-                </div>
-              }
-
-              @if (funcionarioEditId !== null) {
-                <div class="form-card">
-                  <h3>Editar Funcionário #{{ funcionarioEditId }}</h3>
-                  <div class="form-grid">
-                    <input [(ngModel)]="funcionarioEditForm.nome" placeholder="Nome" class="inp"/>
-                    <input [(ngModel)]="funcionarioEditForm.cargo" placeholder="Cargo" class="inp"/>
-                    <input [(ngModel)]="funcionarioEditForm.telefone" placeholder="Telefone" class="inp"/>
-                    <input [(ngModel)]="funcionarioEditForm.email" placeholder="Email" class="inp"/>
-                  </div>
-                  <div class="form-actions">
-                    <button class="btn-primary" [disabled]="fLoading" (click)="editarFuncionario()">Atualizar</button>
-                    <button class="btn-sec" (click)="cancelarEdicaoFuncionario()">Cancelar</button>
-                  </div>
-                </div>
-              }
-
-              <div class="consult-card">
-                <h3>Consultar</h3>
-                <div class="scope-buttons">
-                  <button class="scope-btn" [class.active]="fCampo === 'id'" (click)="fCampo='id'">ID</button>
-                  <button class="scope-btn" [class.active]="fCampo === 'nome'" (click)="fCampo='nome'">Nome</button>
-                  <button class="scope-btn" [class.active]="fCampo === 'cargo'" (click)="fCampo='cargo'">Cargo</button>
-                  <button class="scope-btn" [class.active]="fCampo === 'email'" (click)="fCampo='email'">Email</button>
-                  <button class="scope-btn" [class.active]="fCampo === 'telefone'" (click)="fCampo='telefone'">Telefone</button>
-                </div>
-                <div class="consult-row">
-                  <input [(ngModel)]="fValor" [placeholder]="'Buscar por ' + fCampo" class="inp"/>
-                  <button class="btn-primary" [disabled]="fSearchLoading" (click)="consultarFuncionario()">
-                    @if (fSearchLoading) { Buscando... } @else { Buscar }
-                  </button>
-                </div>
-                @if (fSearchLoading) {
-                  <p class="loading">Buscando...</p>
-                }
-                @if (fResultado && !fSearchLoading) {
-                  <div class="consult-result">
-                    <p><strong>ID:</strong> {{ fResultado.id }}</p>
-                    <p><strong>Nome:</strong> {{ fResultado.nome }}</p>
-                    <p><strong>Cargo:</strong> {{ fResultado.cargo }}</p>
-                    <p><strong>Telefone:</strong> {{ fResultado.telefone }}</p>
-                    <p><strong>Email:</strong> {{ fResultado.email }}</p>
-                  </div>
-                }
-                @if (fErro) {
-                  <p class="err">{{ fErro }}</p>
-                }
-              </div>
-
-              <div class="table-wrapper">
-                @if (fListLoading) {
-                  <p class="empty">Carregando...</p>
-                } @else if (funcionarios.length === 0) {
-                  <p class="empty">Nenhum funcionário cadastrado.</p>
-                } @else {
-                  <table>
-                    <thead>
-                      <tr><th>ID</th><th>Nome</th><th>Cargo</th><th>Telefone</th><th>Email</th><th>Ações</th></tr>
-                    </thead>
-                    <tbody>
-                      @for (f of funcionarios; track f.id) {
-                        <tr>
-                          <td>{{ f.id }}</td>
-                          <td>{{ f.nome }}</td>
-                          <td>{{ f.cargo }}</td>
-                          <td>{{ f.telefone }}</td>
-                          <td>{{ f.email }}</td>
-                          <td class="actions">
-                            <button class="btn-sm btn-blue" (click)="iniciarEdicaoFuncionario(f)">Editar</button>
-                            <button class="btn-sm btn-red" (click)="excluirFuncionario(f)">Excluir</button>
-                          </td>
-                        </tr>
-                      }
-                    </tbody>
-                  </table>
-                }
-              </div>
-
-              @if (successMsg) {
-                <p class="success">{{ successMsg }}</p>
-              }
-
-              @if (funcionarioErro) {
-                <p class="err">{{ funcionarioErro }}</p>
-              }
-            </div>
-          }
-
-          @if (activeTab === 'clientes') {
-            <div class="crud-content">
-              <div class="crud-bar">
-                <button class="btn-primary" (click)="showAddFormCliente = !showAddFormCliente">
-                  {{ showAddFormCliente ? 'Cancelar' : '+ Novo Cliente' }}
-                </button>
-              </div>
-
-              @if (showAddFormCliente) {
-                <div class="form-card">
-                  <h3>Novo Cliente</h3>
-                  <div class="form-grid">
-                    <input [(ngModel)]="clienteForm.nome" placeholder="Nome" class="inp"/>
-                    <input [(ngModel)]="clienteForm.email" placeholder="Email" class="inp"/>
-                    <input [(ngModel)]="clienteForm.telefone" placeholder="Telefone" class="inp"/>
-                    <input [(ngModel)]="clienteForm.endereco" placeholder="Endereço" class="inp"/>
-                  </div>
-                  <button class="btn-primary" [disabled]="cLoading" (click)="incluirCliente()">
-                    @if (cLoading) { Salvando... } @else { Salvar }
-                  </button>
-                </div>
-              }
-
-              @if (clienteEditId !== null) {
-                <div class="form-card">
-                  <h3>Editar Cliente #{{ clienteEditId }}</h3>
-                  <div class="form-grid">
-                    <input [(ngModel)]="clienteEditForm.nome" placeholder="Nome" class="inp"/>
-                    <input [(ngModel)]="clienteEditForm.email" placeholder="Email" class="inp"/>
-                    <input [(ngModel)]="clienteEditForm.telefone" placeholder="Telefone" class="inp"/>
-                    <input [(ngModel)]="clienteEditForm.endereco" placeholder="Endereço" class="inp"/>
-                  </div>
-                  <div class="form-actions">
-                    <button class="btn-primary" [disabled]="cLoading" (click)="editarCliente()">Atualizar</button>
-                    <button class="btn-sec" (click)="cancelarEdicaoCliente()">Cancelar</button>
-                  </div>
-                </div>
-              }
-
-              <div class="consult-card">
-                <h3>Consultar</h3>
-                <div class="scope-buttons">
-                  <button class="scope-btn" [class.active]="cCampo === 'id'" (click)="cCampo='id'">ID</button>
-                  <button class="scope-btn" [class.active]="cCampo === 'nome'" (click)="cCampo='nome'">Nome</button>
-                  <button class="scope-btn" [class.active]="cCampo === 'email'" (click)="cCampo='email'">Email</button>
-                  <button class="scope-btn" [class.active]="cCampo === 'telefone'" (click)="cCampo='telefone'">Telefone</button>
-                  <button class="scope-btn" [class.active]="cCampo === 'endereco'" (click)="cCampo='endereco'">Endereço</button>
-                </div>
-                <div class="consult-row">
-                  <input [(ngModel)]="cValor" [placeholder]="'Buscar por ' + cCampo" class="inp"/>
-                  <button class="btn-primary" [disabled]="cSearchLoading" (click)="consultarCliente()">
-                    @if (cSearchLoading) { Buscando... } @else { Buscar }
-                  </button>
-                </div>
-                @if (cSearchLoading) {
-                  <p class="loading">Buscando...</p>
-                }
-                @if (cResultado && !cSearchLoading) {
-                  <div class="consult-result">
-                    <p><strong>ID:</strong> {{ cResultado.id }}</p>
-                    <p><strong>Nome:</strong> {{ cResultado.nome }}</p>
-                    <p><strong>Email:</strong> {{ cResultado.email }}</p>
-                    <p><strong>Telefone:</strong> {{ cResultado.telefone }}</p>
-                    <p><strong>Endereço:</strong> {{ cResultado.endereco }}</p>
-                  </div>
-                }
-                @if (cErro) {
-                  <p class="err">{{ cErro }}</p>
-                }
-              </div>
-
-              <div class="table-wrapper">
-                @if (cListLoading) {
-                  <p class="empty">Carregando...</p>
-                } @else if (clientes.length === 0) {
-                  <p class="empty">Nenhum cliente cadastrado.</p>
-                } @else {
-                  <table>
-                    <thead>
-                      <tr><th>ID</th><th>Nome</th><th>Email</th><th>Telefone</th><th>Endereço</th><th>Ações</th></tr>
-                    </thead>
-                    <tbody>
-                      @for (c of clientes; track c.id) {
-                        <tr>
-                          <td>{{ c.id }}</td>
-                          <td>{{ c.nome }}</td>
-                          <td>{{ c.email }}</td>
-                          <td>{{ c.telefone }}</td>
-                          <td>{{ c.endereco }}</td>
-                          <td class="actions">
-                            <button class="btn-sm btn-blue" (click)="iniciarEdicaoCliente(c)">Editar</button>
-                            <button class="btn-sm btn-red" (click)="excluirCliente(c)">Excluir</button>
-                          </td>
-                        </tr>
-                      }
-                    </tbody>
-                  </table>
-                }
-              </div>
-
-              @if (successMsg) {
-                <p class="success">{{ successMsg }}</p>
-              }
-
-              @if (clienteErro) {
-                <p class="err">{{ clienteErro }}</p>
-              }
-            </div>
+            <app-funcionarios-crud/>
+          } @else if (activeTab === 'clientes') {
+            <app-clientes-crud/>
+          } @else if (activeTab === 'equipamentos') {
+            <app-equipamentos-crud/>
+          } @else if (activeTab === 'estoque') {
+            <app-estoque-crud/>
           }
         </div>
       </section>
@@ -447,9 +240,9 @@ import { Funcionario, Cliente } from '../../core/types/types';
             <div class="footer-brand">
               <div class="footer-logo">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-                <span>Assistência <span class="accent">Técnica</span></span>
+                  <span>Prime <span class="accent">Assistência</span></span>
               </div>
-              <p class="footer-desc">Assistência técnica especializada em reparos de eletrônicos. Qualidade e confiança desde 2024.</p>
+              <p class="footer-desc">Prime Assistência — especializada em reparos de eletrônicos. Qualidade e confiança desde 2024.</p>
               <div class="footer-social">
                 <a href="https://instagram.com" target="_blank" aria-label="Instagram">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069z"/></svg>
@@ -483,7 +276,7 @@ import { Funcionario, Cliente } from '../../core/types/types';
             </div>
           </div>
           <div class="footer-bottom">
-            <p>&copy; 2026 Assistência Técnica. Todos os direitos reservados.</p>
+            <p>&copy; 2026 Prime Assistência. Todos os direitos reservados.</p>
           </div>
         </div>
       </footer>
@@ -742,266 +535,11 @@ import { Funcionario, Cliente } from '../../core/types/types';
     .footer-bottom { border-top: 1px solid var(--border); padding-top: 24px; text-align: center; font-size: .82rem; color: var(--text-muted); }
   `]
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent {
   activeTab = 'funcionarios';
-
-  funcionarios: Funcionario[] = [];
-  clientes: Cliente[] = [];
-
-  showAddForm = false;
-  funcionarioForm: Funcionario = { nome: '', cargo: '', telefone: '', email: '' };
-  funcionarioEditId: number | null = null;
-  funcionarioEditForm: Funcionario = { nome: '', cargo: '', telefone: '', email: '' };
-  fCampo = 'id';
-  fValor = '';
-  fResultado: Funcionario | null = null;
-  fErro = '';
-  funcionarioErro = '';
-  successMsg = '';
-  fLoading = false;
-  fListLoading = false;
-  fSearchLoading = false;
-
-  showAddFormCliente = false;
-  clienteForm: Cliente = { nome: '', email: '', telefone: '', endereco: '' };
-  clienteEditId: number | null = null;
-  clienteEditForm: Cliente = { nome: '', email: '', telefone: '', endereco: '' };
-  cCampo = 'id';
-  cValor = '';
-  cResultado: Cliente | null = null;
-  cErro = '';
-  clienteErro = '';
-  cLoading = false;
-  cListLoading = false;
-  cSearchLoading = false;
-
-  constructor(
-    private funcionariosService: FuncionariosService,
-    private clientesService: ClientesService
-  ) {}
-
-  ngOnInit() {
-    this.listarFuncionarios();
-    this.listarClientes();
-  }
-
-  private emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-  private mostrarSucesso(msg: string) {
-    this.successMsg = msg;
-    setTimeout(() => this.successMsg = '', 3000);
-  }
 
   scrollPara(id: string) {
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
-  listarFuncionarios() {
-    this.fListLoading = true;
-    this.funcionariosService.listar().subscribe({
-      next: (data) => { this.funcionarios = data; this.fListLoading = false; },
-      error: () => { this.funcionarioErro = 'Erro ao carregar funcionários.'; this.fListLoading = false; }
-    });
-  }
-
-  incluirFuncionario() {
-    if (!this.funcionarioForm.nome || !this.funcionarioForm.cargo) {
-      this.funcionarioErro = 'Nome e Cargo são obrigatórios.';
-      return;
-    }
-    if (!this.emailRegex.test(this.funcionarioForm.email)) {
-      this.funcionarioErro = 'Email inválido.';
-      return;
-    }
-    this.fLoading = true;
-    this.funcionarioErro = '';
-    this.funcionariosService.incluir(this.funcionarioForm).subscribe({
-      next: () => {
-        this.showAddForm = false;
-        this.funcionarioForm = { nome: '', cargo: '', telefone: '', email: '' };
-        this.fLoading = false;
-        this.mostrarSucesso('Funcionário cadastrado com sucesso.');
-        this.listarFuncionarios();
-      },
-      error: () => { this.funcionarioErro = 'Erro ao incluir funcionário.'; this.fLoading = false; }
-    });
-  }
-
-  iniciarEdicaoFuncionario(f: Funcionario) {
-    this.funcionarioEditId = f.id ?? null;
-    this.funcionarioEditForm = { ...f };
-  }
-
-  editarFuncionario() {
-    if (this.funcionarioEditId === null) return;
-    if (!this.emailRegex.test(this.funcionarioEditForm.email)) {
-      this.funcionarioErro = 'Email inválido.';
-      return;
-    }
-    this.fLoading = true;
-    this.funcionarioErro = '';
-    this.funcionariosService.editar({ ...this.funcionarioEditForm, id: this.funcionarioEditId }).subscribe({
-      next: () => {
-        this.funcionarioEditId = null;
-        this.funcionarioEditForm = { nome: '', cargo: '', telefone: '', email: '' };
-        this.fLoading = false;
-        this.mostrarSucesso('Funcionário atualizado com sucesso.');
-        this.listarFuncionarios();
-      },
-      error: () => { this.funcionarioErro = 'Erro ao editar funcionário.'; this.fLoading = false; }
-    });
-  }
-
-  cancelarEdicaoFuncionario() {
-    this.funcionarioEditId = null;
-    this.funcionarioEditForm = { nome: '', cargo: '', telefone: '', email: '' };
-  }
-
-  excluirFuncionario(f: Funcionario) {
-    if (!confirm(`Excluir funcionário "${f.nome}"?`)) return;
-    this.funcionariosService.excluir(f.id!).subscribe({
-      next: () => {
-        this.mostrarSucesso('Funcionário excluído com sucesso.');
-        this.listarFuncionarios();
-      },
-      error: () => { this.funcionarioErro = 'Erro ao excluir funcionário.'; }
-    });
-  }
-
-  consultarFuncionario() {
-    this.fResultado = null;
-    this.fErro = '';
-    if (!this.fValor) {
-      this.fErro = 'Informe um valor para busca.';
-      return;
-    }
-    if (this.fCampo === 'id') {
-      const id = Number(this.fValor);
-      if (isNaN(id)) { this.fErro = 'ID deve ser um número.'; return; }
-      this.fSearchLoading = true;
-      this.funcionariosService.buscarPorId(id).subscribe({
-        next: (data) => { this.fResultado = data; this.fSearchLoading = false; },
-        error: () => { this.fErro = 'Nenhum funcionário encontrado.'; this.fSearchLoading = false; }
-      });
-    } else {
-      this.fSearchLoading = true;
-      const val = this.fValor.toLowerCase();
-      const campo = this.fCampo as keyof Funcionario;
-      const encontrado = this.funcionarios.find(f => {
-        const v = f[campo];
-        return v !== undefined && String(v).toLowerCase().includes(val);
-      });
-      this.fSearchLoading = false;
-      if (encontrado) {
-        this.fResultado = encontrado;
-      } else {
-        this.fErro = 'Nenhum funcionário encontrado.';
-      }
-    }
-  }
-
-  listarClientes() {
-    this.cListLoading = true;
-    this.clientesService.listar().subscribe({
-      next: (data) => { this.clientes = data; this.cListLoading = false; },
-      error: () => { this.clienteErro = 'Erro ao carregar clientes.'; this.cListLoading = false; }
-    });
-  }
-
-  incluirCliente() {
-    if (!this.clienteForm.nome || !this.clienteForm.email) {
-      this.clienteErro = 'Nome e Email são obrigatórios.';
-      return;
-    }
-    if (!this.emailRegex.test(this.clienteForm.email)) {
-      this.clienteErro = 'Email inválido.';
-      return;
-    }
-    this.cLoading = true;
-    this.clienteErro = '';
-    this.clientesService.incluir(this.clienteForm).subscribe({
-      next: () => {
-        this.showAddFormCliente = false;
-        this.clienteForm = { nome: '', email: '', telefone: '', endereco: '' };
-        this.cLoading = false;
-        this.mostrarSucesso('Cliente cadastrado com sucesso.');
-        this.listarClientes();
-      },
-      error: () => { this.clienteErro = 'Erro ao incluir cliente.'; this.cLoading = false; }
-    });
-  }
-
-  iniciarEdicaoCliente(c: Cliente) {
-    this.clienteEditId = c.id ?? null;
-    this.clienteEditForm = { ...c };
-  }
-
-  editarCliente() {
-    if (this.clienteEditId === null) return;
-    if (!this.emailRegex.test(this.clienteEditForm.email)) {
-      this.clienteErro = 'Email inválido.';
-      return;
-    }
-    this.cLoading = true;
-    this.clienteErro = '';
-    this.clientesService.editar({ ...this.clienteEditForm, id: this.clienteEditId }).subscribe({
-      next: () => {
-        this.clienteEditId = null;
-        this.clienteEditForm = { nome: '', email: '', telefone: '', endereco: '' };
-        this.cLoading = false;
-        this.mostrarSucesso('Cliente atualizado com sucesso.');
-        this.listarClientes();
-      },
-      error: () => { this.clienteErro = 'Erro ao editar cliente.'; this.cLoading = false; }
-    });
-  }
-
-  cancelarEdicaoCliente() {
-    this.clienteEditId = null;
-    this.clienteEditForm = { nome: '', email: '', telefone: '', endereco: '' };
-  }
-
-  excluirCliente(c: Cliente) {
-    if (!confirm(`Excluir cliente "${c.nome}"?`)) return;
-    this.clientesService.excluir(c.id!).subscribe({
-      next: () => {
-        this.mostrarSucesso('Cliente excluído com sucesso.');
-        this.listarClientes();
-      },
-      error: () => { this.clienteErro = 'Erro ao excluir cliente.'; }
-    });
-  }
-
-  consultarCliente() {
-    this.cResultado = null;
-    this.cErro = '';
-    if (!this.cValor) {
-      this.cErro = 'Informe um valor para busca.';
-      return;
-    }
-    if (this.cCampo === 'id') {
-      const id = Number(this.cValor);
-      if (isNaN(id)) { this.cErro = 'ID deve ser um número.'; return; }
-      this.cSearchLoading = true;
-      this.clientesService.buscarPorId(id).subscribe({
-        next: (data) => { this.cResultado = data; this.cSearchLoading = false; },
-        error: () => { this.cErro = 'Nenhum cliente encontrado.'; this.cSearchLoading = false; }
-      });
-    } else {
-      this.cSearchLoading = true;
-      const val = this.cValor.toLowerCase();
-      const campo = this.cCampo as keyof Cliente;
-      const encontrado = this.clientes.find(c => {
-        const v = c[campo];
-        return v !== undefined && String(v).toLowerCase().includes(val);
-      });
-      this.cSearchLoading = false;
-      if (encontrado) {
-        this.cResultado = encontrado;
-      } else {
-        this.cErro = 'Nenhum cliente encontrado.';
-      }
-    }
   }
 }

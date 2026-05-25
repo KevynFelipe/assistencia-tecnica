@@ -1,0 +1,314 @@
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ClientesService } from '../../core/services/clientes.service';
+import { Cliente } from '../../core/types/types';
+
+@Component({
+  selector: 'app-clientes-crud',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  template: `
+    <div class="crud-bar">
+      <button class="btn-primary" (click)="showForm = !showForm">
+        {{ showForm ? 'Cancelar' : '+ Novo Cliente' }}
+      </button>
+    </div>
+
+    @if (showForm) {
+      <div class="form-card">
+        <h3>{{ editId ? 'Editar Cliente' : 'Novo Cliente' }}</h3>
+        <div class="form-grid">
+          <input [(ngModel)]="form.nome" placeholder="Nome" class="inp"/>
+          <select [(ngModel)]="form.tipo" class="inp">
+            <option value="PF">Pessoa Física</option>
+            <option value="PJ">Pessoa Jurídica</option>
+          </select>
+          <input [(ngModel)]="form.cpfCnpj" [placeholder]="form.tipo === 'PJ' ? 'CNPJ' : 'CPF'" class="inp"/>
+          <input [(ngModel)]="form.telefone" placeholder="Telefone" class="inp"/>
+          <input [(ngModel)]="form.email" placeholder="Email" class="inp"/>
+          <input [(ngModel)]="form.endereco" placeholder="Endereço" class="inp"/>
+        </div>
+        <button class="btn-primary" [disabled]="loading" (click)="salvar()">
+          @if (loading) { Salvando... } @else { Salvar }
+        </button>
+      </div>
+    }
+
+    <div class="consult-card">
+      <h3>Consultar</h3>
+      <div class="scope-buttons">
+        <button class="scope-btn" [class.active]="campo === 'id'" (click)="campo='id'">ID</button>
+        <button class="scope-btn" [class.active]="campo === 'nome'" (click)="campo='nome'">Nome</button>
+        <button class="scope-btn" [class.active]="campo === 'cpfCnpj'" (click)="campo='cpfCnpj'">CPF/CNPJ</button>
+        <button class="scope-btn" [class.active]="campo === 'email'" (click)="campo='email'">Email</button>
+      </div>
+      <div class="consult-row">
+        <input [(ngModel)]="valor" [placeholder]="'Buscar por ' + campo" class="inp"/>
+        <button class="btn-primary" [disabled]="searchLoading" (click)="consultar()">
+          @if (searchLoading) { Buscando... } @else { Buscar }
+        </button>
+      </div>
+      @if (resultado) {
+        <div class="consult-result">
+          <p><strong>ID:</strong> {{ resultado.id }}</p>
+          <p><strong>Nome:</strong> {{ resultado.nome }}</p>
+          <p><strong>{{ resultado.tipo === 'PJ' ? 'CNPJ' : 'CPF' }}:</strong> {{ resultado.cpfCnpj }}</p>
+          <p><strong>Telefone:</strong> {{ resultado.telefone }}</p>
+          <p><strong>Email:</strong> {{ resultado.email }}</p>
+          <p><strong>Endereço:</strong> {{ resultado.endereco }}</p>
+        </div>
+      }
+      @if (erro) {
+        <p class="err">{{ erro }}</p>
+      }
+    </div>
+
+    <div class="table-wrapper">
+      @if (listLoading) {
+        <p class="empty">Carregando...</p>
+      } @else if (ativos.length === 0) {
+        <p class="empty">Nenhum cliente ativo encontrado.</p>
+      } @else {
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Nome</th><th>Tipo</th><th>CPF/CNPJ</th><th>Telefone</th><th>Email</th><th>Ações</th></tr>
+          </thead>
+          <tbody>
+            @for (c of ativos; track c.id) {
+              <tr>
+                <td>{{ c.id }}</td>
+                <td>{{ c.nome }}</td>
+                <td>{{ c.tipo }}</td>
+                <td>{{ c.cpfCnpj }}</td>
+                <td>{{ c.telefone }}</td>
+                <td>{{ c.email }}</td>
+                <td class="actions">
+                  <button class="btn-sm btn-blue" (click)="editar(c)">Editar</button>
+                  <button class="btn-sm btn-red" (click)="arquivar(c)">Arquivar</button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+
+    <details class="archived-section">
+      <summary>Clientes Arquivados ({{ inativos.length }})</summary>
+      @if (inativos.length === 0) {
+        <p class="empty-sm">Nenhum cliente arquivado.</p>
+      } @else {
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>ID</th><th>Nome</th><th>CPF/CNPJ</th><th>Ações</th></tr>
+            </thead>
+            <tbody>
+              @for (c of inativos; track c.id) {
+                <tr>
+                  <td>{{ c.id }}</td>
+                  <td>{{ c.nome }}</td>
+                  <td>{{ c.cpfCnpj }}</td>
+                  <td class="actions">
+                    <button class="btn-sm btn-blue" (click)="reativar(c)">Reativar</button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </details>
+
+    @if (sucesso) {
+      <p class="success">{{ sucesso }}</p>
+    }
+    @if (erroGeral) {
+      <p class="err">{{ erroGeral }}</p>
+    }
+  `,
+  styles: [`
+    :host { display: flex; flex-direction: column; gap: 24px; }
+    .crud-bar { display: flex; gap: 8px; }
+    .form-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 24px;
+      border-left: 3px solid var(--primary);
+    }
+    .form-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 16px; color: var(--text); }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin-bottom: 16px; }
+    .consult-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 24px;
+      border-left: 3px solid rgba(59,130,246,.4);
+    }
+    .consult-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 16px; color: var(--text); }
+    .scope-buttons { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+    .scope-btn {
+      padding: 7px 18px; font-size: .8rem; font-weight: 600;
+      background: var(--surface-hover); color: var(--text-muted);
+      border: 1px solid var(--border); border-radius: 20px;
+      cursor: pointer; transition: all .2s;
+    }
+    .scope-btn:hover { color: var(--text); border-color: var(--text-muted); }
+    .scope-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .consult-row { display: flex; gap: 10px; align-items: center; }
+    .consult-result {
+      margin-top: 14px; background: var(--surface-hover);
+      border-radius: 8px; padding: 16px 20px;
+      border: 1px solid var(--border);
+    }
+    .consult-result p { margin-bottom: 6px; font-size: .9rem; }
+    .table-wrapper {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; overflow-x: auto;
+    }
+    table { width: 100%; border-collapse: collapse; min-width: 600px; }
+    th, td { padding: 12px 16px; text-align: left; font-size: .85rem; }
+    th {
+      background: var(--surface-hover); font-weight: 600;
+      color: var(--text-muted); text-transform: uppercase;
+      font-size: .7rem; letter-spacing: .6px;
+      border-bottom: 1px solid var(--border); white-space: nowrap;
+    }
+    td { color: var(--text); border-bottom: 1px solid var(--border); }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: rgba(59,130,246,.03); }
+    .actions { display: flex; gap: 6px; white-space: nowrap; }
+    .empty { padding: 48px; text-align: center; color: var(--text-muted); }
+    .empty-sm { padding: 16px; text-align: center; color: var(--text-muted); font-size: .85rem; }
+    .archived-section { margin-top: 8px; }
+    .archived-section summary { cursor: pointer; color: var(--text-muted); font-size: .85rem; font-weight: 600; padding: 8px 0; }
+    .archived-section summary:hover { color: var(--text); }
+    .inp {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 8px; padding: 11px 16px;
+      color: var(--text); font-size: .9rem;
+      outline: none; transition: all .2s; width: 100%;
+    }
+    .inp:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59,130,246,.1); }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 11px 24px; background: var(--primary); color: #fff;
+      border: none; border-radius: 8px; font-size: .9rem; font-weight: 600;
+      cursor: pointer; transition: all .2s; white-space: nowrap;
+    }
+    .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+    .btn-sm { padding: 7px 16px; font-size: .8rem; font-weight: 600; border: none; border-radius: 6px; cursor: pointer; transition: all .2s; }
+    .btn-blue { background: var(--primary); color: #fff; }
+    .btn-blue:hover { background: var(--primary-hover); transform: translateY(-1px); }
+    .btn-red { background: var(--danger); color: #fff; }
+    .btn-red:hover { background: var(--danger-hover); transform: translateY(-1px); }
+    .err { color: var(--danger); font-size: .9rem; padding: 10px 0; display: flex; align-items: center; gap: 6px; }
+    .err::before { content: '\u26A0'; }
+    .success {
+      color: var(--success); font-size: .9rem; padding: 10px 16px; font-weight: 500;
+      background: rgba(34,197,94,.08); border: 1px solid rgba(34,197,94,.15);
+      border-radius: 8px; display: flex; align-items: center; gap: 6px;
+    }
+    .success::before { content: '\u2713'; font-weight: 700; }
+  `]
+})
+export class ClientesCrudComponent implements OnInit {
+  constructor(private service: ClientesService) {}
+
+  todos: Cliente[] = [];
+  showForm = false;
+  editId: number | null = null;
+  form: Partial<Cliente> = { tipo: 'PF', ativo: true };
+  loading = false;
+  listLoading = false;
+  searchLoading = false;
+  campo = 'id';
+  valor = '';
+  resultado: Cliente | null = null;
+  erro = '';
+  sucesso = '';
+  erroGeral = '';
+
+  get ativos() { return this.todos.filter(c => c.ativo); }
+  get inativos() { return this.todos.filter(c => !c.ativo); }
+
+  ngOnInit() { this.listar(); }
+
+  listar() {
+    this.listLoading = true;
+    this.service.listar().subscribe({
+      next: d => { this.todos = d; this.listLoading = false; },
+      error: () => { this.erroGeral = 'Erro ao carregar.'; this.listLoading = false; }
+    });
+  }
+
+  salvar() {
+    if (!this.form.nome || !this.form.email) {
+      this.erroGeral = 'Nome e Email são obrigatórios.';
+      return;
+    }
+    if (this.form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.form.email)) {
+      this.erroGeral = 'Email inválido.';
+      return;
+    }
+    this.loading = true;
+    this.erroGeral = '';
+    const payload: Cliente = { ...this.form as Cliente, ativo: true };
+    const op = this.editId
+      ? this.service.editar({ ...payload, id: this.editId })
+      : this.service.incluir(payload);
+
+    op.subscribe({
+      next: () => {
+        this.loading = false;
+        this.showForm = false;
+        this.editId = null;
+        this.form = { tipo: 'PF', ativo: true };
+        this.sucesso = 'Cliente salvo com sucesso.';
+        setTimeout(() => this.sucesso = '', 3000);
+        this.listar();
+      },
+      error: () => { this.erroGeral = 'Erro ao salvar.'; this.loading = false; }
+    });
+  }
+
+  editar(c: Cliente) {
+    this.editId = c.id ?? null;
+    this.form = { ...c };
+    this.showForm = true;
+  }
+
+  arquivar(c: Cliente) {
+    if (!confirm(`Arquivar cliente "${c.nome}"?`)) return;
+    this.service.editar({ ...c, ativo: false }).subscribe({
+      next: () => { this.sucesso = 'Cliente arquivado.'; setTimeout(() => this.sucesso = '', 3000); this.listar(); },
+      error: () => { this.erroGeral = 'Erro ao arquivar.'; }
+    });
+  }
+
+  reativar(c: Cliente) {
+    this.service.editar({ ...c, ativo: true }).subscribe({
+      next: () => { this.sucesso = 'Cliente reativado.'; setTimeout(() => this.sucesso = '', 3000); this.listar(); },
+      error: () => { this.erroGeral = 'Erro ao reativar.'; }
+    });
+  }
+
+  consultar() {
+    this.resultado = null;
+    this.erro = '';
+    if (!this.valor) { this.erro = 'Informe um valor.'; return; }
+    if (this.campo === 'id') {
+      const id = Number(this.valor);
+      if (isNaN(id)) { this.erro = 'ID deve ser número.'; return; }
+      this.searchLoading = true;
+      this.service.buscarPorId(id).subscribe({
+        next: d => { this.resultado = d; this.searchLoading = false; },
+        error: () => { this.erro = 'Não encontrado.'; this.searchLoading = false; }
+      });
+    } else {
+      const val = this.valor.toLowerCase();
+      const found = this.ativos.find(c => String(c[this.campo as keyof Cliente] ?? '').toLowerCase().includes(val));
+      this.resultado = found ?? null;
+      if (!found) this.erro = 'Não encontrado.';
+    }
+  }
+}

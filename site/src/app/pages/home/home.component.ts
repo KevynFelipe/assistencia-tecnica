@@ -52,48 +52,54 @@ import { EstoqueCrudComponent } from '../../components/crud/estoque-crud.compone
           </div>
           <div class="services-grid">
             <div class="service-card">
-              <div class="card-img" style="background: linear-gradient(135deg, #1a1a2e, #16213e);">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.5"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+              <div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=300&fit=crop');">
+                <div class="card-img-overlay"></div>
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
               </div>
               <h3>Smartphones & Tablets</h3>
               <p>Troca de tela, bateria, conector de carga, reparo em placa, câmera e muito mais.</p>
               <span class="service-price">A partir de R$ 79</span>
             </div>
             <div class="service-card">
-              <div class="card-img" style="background: linear-gradient(135deg, #1a1a2e, #16213e);">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.5"><path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16"/></svg>
+              <div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop');">
+                <div class="card-img-overlay"></div>
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16"/></svg>
               </div>
               <h3>Notebooks</h3>
               <p>Limpeza preventiva, troca de pasta térmica, reparo em carcaça, tela e teclado.</p>
               <span class="service-price">A partir de R$ 149</span>
             </div>
             <div class="service-card">
-              <div class="card-img" style="background: linear-gradient(135deg, #1a1a2e, #16213e);">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              <div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1593640495253-23108b86e77b?w=400&h=300&fit=crop');">
+                <div class="card-img-overlay"></div>
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
               </div>
               <h3>Desktops & PCs</h3>
               <p>Montagem, upgrade, instalação de SSD, formatação, limpeza e otimização.</p>
               <span class="service-price">A partir de R$ 99</span>
             </div>
             <div class="service-card">
-              <div class="card-img" style="background: linear-gradient(135deg, #1a1a2e, #16213e);">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M2 12h20"/><path d="M12 2v20"/></svg>
+              <div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1605901309584-7bd056f6a7eb?w=400&h=300&fit=crop');">
+                <div class="card-img-overlay"></div>
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M2 12h20"/><path d="M12 2v20"/></svg>
               </div>
               <h3>Consoles</h3>
               <p>Reparo de PlayStation, Xbox e Nintendo Switch. Limpeza e manutenção de controles.</p>
               <span class="service-price">A partir de R$ 129</span>
             </div>
             <div class="service-card">
-              <div class="card-img" style="background: linear-gradient(135deg, #1a1a2e, #16213e);">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              <div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1586210579198-33b0d8c4bd61?w=400&h=300&fit=crop');">
+                <div class="card-img-overlay"></div>
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
               </div>
               <h3>TVs & Monitores</h3>
               <p>Reparo de fonte, troca de tela, problemas de imagem e conexões.</p>
               <span class="service-price">A partir de R$ 119</span>
             </div>
             <div class="service-card">
-              <div class="card-img" style="background: linear-gradient(135deg, #1a1a2e, #16213e);">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              <div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=400&h=300&fit=crop');">
+                <div class="card-img-overlay"></div>
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
               </div>
               <h3>Outros Equipamentos</h3>
               <p>Impressoras, roteadores, fontes, periféricos e equipamentos de áudio.</p>
@@ -288,15 +294,18 @@ import { EstoqueCrudComponent } from '../../components/crud/estoque-crud.compone
 
     .hero {
       position: relative; overflow: hidden;
-      padding: 120px 24px 100px; text-align: center;
-      background: linear-gradient(180deg, rgba(59,130,246,.04) 0%, transparent 100%);
+      padding: 140px 24px 120px; text-align: center;
+      background: #0a0a12;
     }
     .hero-bg {
       position: absolute; inset: 0;
-      background:
-        radial-gradient(ellipse at 30% 20%, rgba(59,130,246,.12) 0%, transparent 50%),
-        radial-gradient(ellipse at 70% 80%, rgba(59,130,246,.06) 0%, transparent 50%);
+      background: url('https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=1400&h=800&fit=crop') center/cover;
+      opacity: .25;
       pointer-events: none;
+    }
+    .hero-bg::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(10,10,18,.85) 0%, rgba(10,10,18,.6) 50%, rgba(10,10,18,.9) 100%);
     }
     .hero-content { position: relative; max-width: 720px; margin: 0 auto; }
     .hero-badge {
@@ -356,8 +365,17 @@ import { EstoqueCrudComponent } from '../../components/crud/estoque-crud.compone
       box-shadow: 0 12px 40px rgba(0,0,0,.3);
     }
     .service-card:hover::before { opacity: 1; }
-    .card-img { height: 110px; display: flex; align-items: center; justify-content: center; transition: transform .3s; }
-    .service-card:hover .card-img { transform: scale(1.05); }
+    .card-img {
+      height: 140px; display: flex; align-items: center; justify-content: center;
+      background-size: cover; background-position: center;
+      position: relative; overflow: hidden;
+    }
+    .card-img-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(10,10,18,.3) 0%, rgba(10,10,18,.7) 100%);
+    }
+    .card-img svg { position: relative; z-index: 1; filter: drop-shadow(0 2px 8px rgba(0,0,0,.4)); }
+    .service-card:hover .card-img { transform: scale(1.02); }
     .service-card h3 { font-size: 1.1rem; font-weight: 700; color: var(--text); padding: 20px 24px 8px; }
     .service-card p { font-size: .85rem; color: var(--text-muted); line-height: 1.6; padding: 0 24px; }
     .service-price { display: block; padding: 14px 24px 20px; font-size: .95rem; font-weight: 700; color: var(--primary); }

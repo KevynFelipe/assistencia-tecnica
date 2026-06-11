@@ -2,14 +2,14 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, switchMap, takeUntil } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { OrdensService } from '../../core/services/ordens.service';
 import { MensagensService } from '../../core/services/mensagens.service';
 import { ChamadosService } from '../../core/services/chamados.service';
 import { ChamadoMensagensService } from '../../core/services/chamado-mensagens.service';
 import { EquipamentosService } from '../../core/services/equipamentos.service';
-import { OrdemServico, Mensagem, Chamado, ChamadoMensagem } from '../../core/types/types';
+import { OrdemServico, Mensagem, Chamado, ChamadoMensagem, Equipamento } from '../../core/types/types';
 
 @Component({
   selector: 'app-minha-conta',
@@ -411,7 +411,7 @@ export class MinhaContaComponent implements OnInit, OnDestroy {
 
   pedidos: OrdemServico[] = [];
   meusChamados: Chamado[] = [];
-  meusEquipamentos: any[] = [];
+  meusEquipamentos: Equipamento[] = [];
 
   chatOrdemId = 0;
   chatTexto = '';
@@ -520,13 +520,16 @@ export class MinhaContaComponent implements OnInit, OnDestroy {
       observacoes: ''
     };
 
-    this.chamadosService.incluir(chamado).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (criado) => {
+    this.chamadosService.incluir(chamado).pipe(
+      takeUntil(this.destroy$),
+      switchMap((criado) => {
         this.showChamadoForm = false;
         this.chamadoForm = { equipamentoId: 0, descricao: '' };
         this.mostrarToast(`Chamado #${criado.id} aberto com sucesso! A equipe irá analisar em breve.`);
-        this.chamadosService.listarPorCliente(user.id).pipe(takeUntil(this.destroy$)).subscribe(d => this.meusChamados = d);
-      },
+        return this.chamadosService.listarPorCliente(user.id);
+      })
+    ).subscribe({
+      next: (d) => this.meusChamados = d,
       error: () => this.mostrarToast('Erro ao abrir chamado.', 'error')
     });
   }
@@ -574,13 +577,16 @@ export class MinhaContaComponent implements OnInit, OnDestroy {
       data: new Date().toISOString()
     };
 
-    this.chamadoMsgService.incluir(msg).pipe(takeUntil(this.destroy$)).subscribe({
-      next: () => {
+    this.chamadoMsgService.incluir(msg).pipe(
+      takeUntil(this.destroy$),
+      switchMap(() => {
         this.convReplyTexto = '';
+        return this.chamadoMsgService.listarPorChamado(this.chamadoAberto!.id!);
+      })
+    ).subscribe({
+      next: (d) => {
         this.sendingReply = false;
-        this.chamadoMsgService.listarPorChamado(this.chamadoAberto!.id!).pipe(takeUntil(this.destroy$)).subscribe(d => {
-          this.conversaMensagens = d.sort((a, b) => new Date(a.data).getTime() - new Date(b.data).getTime());
-        });
+        this.conversaMensagens = d.sort((a, b) => new Date(a.data).getTime() - new Date(b.data).getTime());
         this.atualizarMsgCounts();
         this.mostrarToast('Resposta enviada com sucesso.');
       },

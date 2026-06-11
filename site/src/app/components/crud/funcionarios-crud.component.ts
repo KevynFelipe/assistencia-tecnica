@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Subject, takeUntil } from 'rxjs';
 import { FuncionariosService } from '../../core/services/funcionarios.service';
 import { Funcionario } from '../../core/types/types';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
@@ -207,9 +208,15 @@ export class FuncionariosCrudComponent implements OnInit {
   sucesso = '';
   erroGeral = '';
 
+  private destroy$ = new Subject<void>();
   confirm = { show: false, title: '', text: '', loading: false, item: null as Funcionario | null };
 
   ngOnInit() { this.listar(); }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   private maskTel(v: string): string {
     const d = v.replace(/\D/g, '').slice(0, 11);
@@ -221,7 +228,7 @@ export class FuncionariosCrudComponent implements OnInit {
 
   listar() {
     this.listLoading = true;
-    this.service.listar().subscribe({
+    this.service.listar().pipe(takeUntil(this.destroy$)).subscribe({
       next: d => { this.itens = d; this.listLoading = false; },
       error: () => { this.erroGeral = 'Erro ao carregar.'; this.listLoading = false; }
     });
@@ -259,7 +266,7 @@ export class FuncionariosCrudComponent implements OnInit {
       ? this.service.editar({ ...this.form as Funcionario, id: this.editId! })
       : this.service.incluir(this.form as Funcionario);
 
-    op.subscribe({
+    op.pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.loading = false;
         this.showForm = false;
@@ -284,7 +291,7 @@ export class FuncionariosCrudComponent implements OnInit {
   }
   confirmOk() {
     const f = this.confirm.item; if (!f?.id) return; this.confirm.loading = true;
-    this.service.excluir(f.id).subscribe({
+    this.service.excluir(f.id).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => { this.confirm = { show: false, title: '', text: '', loading: false, item: null }; this.sucesso = 'Funcionário excluído.'; setTimeout(() => this.sucesso = '', 3000); this.listar(); },
       error: () => { this.confirm.show = false; this.erroGeral = 'Erro ao excluir.'; }
     });
@@ -299,7 +306,7 @@ export class FuncionariosCrudComponent implements OnInit {
       const id = Number(this.valor);
       if (isNaN(id)) { this.erro = 'ID deve ser número.'; return; }
       this.searchLoading = true;
-      this.service.buscarPorId(id).subscribe({
+      this.service.buscarPorId(id).pipe(takeUntil(this.destroy$)).subscribe({
         next: d => { this.resultado = d; this.searchLoading = false; },
         error: () => { this.erro = 'Não encontrado.'; this.searchLoading = false; }
       });

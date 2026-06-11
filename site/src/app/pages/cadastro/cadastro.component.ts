@@ -1,8 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
 import { ClientesService } from '../../core/services/clientes.service';
+import { Cliente } from '../../core/types/types';
 
 @Component({
   selector: 'app-cadastro',
@@ -108,7 +110,8 @@ import { ClientesService } from '../../core/services/clientes.service';
     .cadastro-footer a { color: var(--primary); text-decoration: none; font-weight: 600; }
   `]
 })
-export class CadastroComponent {
+export class CadastroComponent implements OnDestroy {
+  private destroy$ = new Subject<void>();
   form = { nome: '', email: '', telefone: '', cpfCnpj: '', endereco: '', tipo: 'PF', senha: '' };
   confirmarSenha = '';
   erro = '';
@@ -132,9 +135,14 @@ export class CadastroComponent {
       return;
     }
     this.loading = true;
-    this.clientesService.incluir({ ...this.form as any, ativo: true }).subscribe({
+    this.clientesService.incluir({ ...this.form as unknown as Cliente, ativo: true }).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => { this.sucesso = true; this.loading = false; },
       error: () => { this.erro = 'Erro ao cadastrar. Verifique o servidor.'; this.loading = false; }
     });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

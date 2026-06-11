@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
 import { ClientesService } from '../../core/services/clientes.service';
 import { Cliente } from '../../core/types/types';
 
@@ -43,7 +44,8 @@ import { Cliente } from '../../core/types/types';
     .btn-block { width: 100%; justify-content: center; padding: 11px; margin-top: 8px; font-size: .9rem; }
   `]
 })
-export class AlterarClienteComponent implements OnInit {
+export class AlterarClienteComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   item: Cliente = {} as Cliente;
   constructor(
     private service: ClientesService,
@@ -52,9 +54,13 @@ export class AlterarClienteComponent implements OnInit {
   ) {}
   ngOnInit() {
     const idParam = this.route.snapshot.paramMap.get('id')!;
-    this.service.buscarPorId(idParam).subscribe(d => this.item = d);
+    this.service.buscarPorId(idParam).pipe(takeUntil(this.destroy$)).subscribe(d => this.item = d);
+  }
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
   salvar() {
-    this.service.editar(this.item).subscribe(() => this.router.navigate(['/clientes']));
+    this.service.editar(this.item).pipe(takeUntil(this.destroy$)).subscribe(() => this.router.navigate(['/clientes']));
   }
 }

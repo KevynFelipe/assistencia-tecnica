@@ -136,8 +136,8 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
         [title]="confirm.title"
         [text]="confirm.text"
         [loading]="confirm.loading"
-        (confirm)="confirmOk()"
-        (cancel)="confirmCancel()"
+        (confirmar)="confirmOk()"
+        (cancelar)="confirmCancel()"
       />
     </div>
   `,
@@ -179,7 +179,7 @@ export class ChamadosCrudComponent implements OnDestroy, OnInit {
   editId: number | null = null;
   loading = false;
   mensagens: ChamadoMensagem[] = [];
-  form: any = { descricao: '', status: 'Aberto', observacoes: '' };
+  form: { descricao: string; status: string; observacoes: string } = { descricao: '', status: 'Aberto', observacoes: '' };
   confirm = { show: false, title: '', text: '', loading: false, item: null as Chamado | null };
   _timeoutId: number | undefined;
   destroy$ = new Subject<void>();
@@ -264,7 +264,7 @@ export class ChamadosCrudComponent implements OnDestroy, OnInit {
     this.erroGeral = '';
     const payload: Partial<Chamado> = {
       descricao: this.form.descricao,
-      status: this.form.status || 'Aberto',
+      status: (this.form.status || 'Aberto') as 'Aberto' | 'Em Andamento' | 'Resolvido' | 'Fechado',
       observacoes: this.form.observacoes || '',
       data: new Date().toISOString(),
     };
@@ -286,7 +286,7 @@ export class ChamadosCrudComponent implements OnDestroy, OnInit {
 
   editar(ch: Chamado): void {
     this.editando = ch;
-    this.form.status = ch.status || 'Aberto';
+    this.form.status = (ch.status || 'Aberto') as 'Aberto' | 'Em Andamento' | 'Resolvido' | 'Fechado';
     this.replyTexto = '';
     this.carregarMensagens(ch.id!);
     setTimeout(() => {
@@ -346,7 +346,7 @@ export class ChamadosCrudComponent implements OnDestroy, OnInit {
       data: new Date().toISOString(),
     };
 
-    this.msgService.incluir(msg).subscribe({
+    this.msgService.incluir(msg).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.replyTexto = '';
         this.sendingReply = false;
@@ -367,11 +367,11 @@ export class ChamadosCrudComponent implements OnDestroy, OnInit {
     this.erro = '';
     const payload: Chamado = {
       ...this.editando,
-      status: this.form.status || 'Aberto',
+      status: (this.form.status || 'Aberto') as 'Aberto' | 'Em Andamento' | 'Resolvido' | 'Fechado',
       observacoes: this.form.observacoes || '',
     };
 
-    this.service.editar(payload).subscribe({
+    this.service.editar(payload).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.saving = false;
         this.sucesso = `Chamado #${payload.id} atualizado para "${payload.status}".`;

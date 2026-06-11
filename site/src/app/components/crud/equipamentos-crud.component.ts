@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Subject, takeUntil } from 'rxjs';
 import { EquipamentosService } from '../../core/services/equipamentos.service';
 import { ClientesService } from '../../core/services/clientes.service';
 import { Equipamento, Cliente } from '../../core/types/types';
@@ -219,16 +220,22 @@ export class EquipamentosCrudComponent implements OnInit {
   erro = '';
   sucesso = '';
   erroGeral = '';
+  private destroy$ = new Subject<void>();
   confirm = { show: false, title: '', text: '', loading: false, item: null as Equipamento | null };
 
   ngOnInit() {
-    this.clientesService.listar().subscribe(cs => this.clientes = cs.filter(c => c.ativo));
+    this.clientesService.listar().pipe(takeUntil(this.destroy$)).subscribe(cs => this.clientes = cs.filter(c => c.ativo));
     this.listar();
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   listar() {
     this.listLoading = true;
-    this.service.listar().subscribe({
+    this.service.listar().pipe(takeUntil(this.destroy$)).subscribe({
       next: d => { this.itens = d; this.listLoading = false; },
       error: () => { this.erroGeral = 'Erro ao carregar.'; this.listLoading = false; }
     });
@@ -269,7 +276,7 @@ export class EquipamentosCrudComponent implements OnInit {
       ? this.service.editar({ ...payload, id: this.editId })
       : this.service.incluir(payload);
 
-    op.subscribe({
+    op.pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.loading = false;
         this.cancelar();
@@ -292,7 +299,7 @@ export class EquipamentosCrudComponent implements OnInit {
   }
   confirmOk() {
     const e = this.confirm.item; if (!e?.id) return; this.confirm.loading = true;
-    this.service.excluir(e.id).subscribe({
+    this.service.excluir(e.id).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => { this.confirm = { show: false, title: '', text: '', loading: false, item: null }; this.sucesso = 'Equipamento excluído.'; setTimeout(() => this.sucesso = '', 3000); this.listar(); },
       error: () => { this.confirm.show = false; this.erroGeral = 'Erro ao excluir.'; }
     });
@@ -307,7 +314,7 @@ export class EquipamentosCrudComponent implements OnInit {
       const id = Number(this.valor);
       if (isNaN(id)) { this.erro = 'ID deve ser número.'; return; }
       this.searchLoading = true;
-      this.service.buscarPorId(id).subscribe({
+      this.service.buscarPorId(id).pipe(takeUntil(this.destroy$)).subscribe({
         next: d => { this.resultado = d; this.searchLoading = false; },
         error: () => { this.erro = 'Não encontrado.'; this.searchLoading = false; }
       });

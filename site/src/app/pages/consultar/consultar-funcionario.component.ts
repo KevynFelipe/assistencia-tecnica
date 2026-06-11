@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Subject, takeUntil } from 'rxjs';
 import { FuncionariosService } from '../../core/services/funcionarios.service';
 import { Funcionario } from '../../core/types/types';
 
@@ -52,16 +53,21 @@ import { Funcionario } from '../../core/types/types';
     .consulta-erro { margin-top: 24px; padding: 14px; background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.25); border-radius: 10px; color: var(--danger); font-size: .85rem; text-align: center; }
   `]
 })
-export class ConsultarFuncionarioComponent {
+export class ConsultarFuncionarioComponent implements OnDestroy {
+  private destroy$ = new Subject<void>();
   idBusca?: number;
   encontrado?: Funcionario;
   erro = '';
   constructor(private service: FuncionariosService) {}
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
   buscar() {
     if (!this.idBusca) return;
     this.erro = '';
     this.encontrado = undefined;
-    this.service.buscarPorId(this.idBusca).subscribe({
+    this.service.buscarPorId(this.idBusca).pipe(takeUntil(this.destroy$)).subscribe({
       next: d => this.encontrado = d,
       error: () => this.erro = 'Funcionário não encontrado.'
     });

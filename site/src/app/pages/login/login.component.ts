@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
@@ -204,7 +205,8 @@ import { AuthService } from '../../core/services/auth.service';
     .login-info svg { flex-shrink: 0; margin-top: 2px; color: var(--primary); }
   `]
 })
-export class LoginComponent {
+export class LoginComponent implements OnDestroy {
+  private destroy$ = new Subject<void>();
   papel: 'funcionario' | 'cliente' = 'funcionario';
   email = '';
   senha = '';
@@ -231,7 +233,7 @@ export class LoginComponent {
       ? this.auth.loginFuncionario(this.email, this.senha)
       : this.auth.loginCliente(this.email, this.senha);
 
-    obs.subscribe({
+    obs.pipe(takeUntil(this.destroy$)).subscribe({
       next: user => {
         this.loading = false;
         if (user) {
@@ -247,5 +249,10 @@ export class LoginComponent {
         this.erro = 'Erro ao conectar. Verifique o servidor.';
       }
     });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

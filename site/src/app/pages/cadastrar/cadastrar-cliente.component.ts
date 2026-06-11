@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
 import { ClientesService } from '../../core/services/clientes.service';
 import { Cliente } from '../../core/types/types';
 
@@ -43,10 +44,15 @@ import { Cliente } from '../../core/types/types';
     .btn-block { width: 100%; justify-content: center; padding: 11px; margin-top: 8px; font-size: .9rem; }
   `]
 })
-export class CadastrarClienteComponent {
+export class CadastrarClienteComponent implements OnDestroy {
+  private destroy$ = new Subject<void>();
   item: Cliente = {} as Cliente;
   constructor(private service: ClientesService, private router: Router) {}
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
   submeter() {
-    this.service.incluir(this.item).subscribe(() => this.router.navigate(['/clientes']));
+    this.service.incluir(this.item).pipe(takeUntil(this.destroy$)).subscribe(() => this.router.navigate(['/clientes']));
   }
 }

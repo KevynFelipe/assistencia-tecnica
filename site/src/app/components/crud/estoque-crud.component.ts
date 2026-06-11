@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Subject, takeUntil } from 'rxjs';
 import { EstoqueService } from '../../core/services/estoque.service';
 import { EstoqueItem } from '../../core/types/types';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
@@ -228,11 +229,18 @@ export class EstoqueCrudComponent implements OnInit {
     return Math.round((1 - p.valorCusto / p.valorVenda) * 100);
   }
 
+  private destroy$ = new Subject<void>();
+
   ngOnInit() { this.listar(); }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   listar() {
     this.listLoading = true;
-    this.service.listar().subscribe({
+    this.service.listar().pipe(takeUntil(this.destroy$)).subscribe({
       next: d => { this.itens = d; this.listLoading = false; },
       error: () => { this.erroGeral = 'Erro ao carregar.'; this.listLoading = false; }
     });
@@ -272,7 +280,7 @@ export class EstoqueCrudComponent implements OnInit {
       ? this.service.editar({ ...payload, id: this.editId })
       : this.service.incluir(payload);
 
-    op.subscribe({
+    op.pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.loading = false;
         this.cancelar();
@@ -295,7 +303,7 @@ export class EstoqueCrudComponent implements OnInit {
   }
   confirmOk() {
     const p = this.confirm.item; if (!p?.id) return; this.confirm.loading = true;
-    this.service.excluir(p.id).subscribe({
+    this.service.excluir(p.id).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => { this.confirm = { show: false, title: '', text: '', loading: false, item: null }; this.sucesso = 'Peça excluída.'; setTimeout(() => this.sucesso = '', 3000); this.listar(); },
       error: () => { this.confirm.show = false; this.erroGeral = 'Erro ao excluir.'; }
     });
@@ -310,7 +318,7 @@ export class EstoqueCrudComponent implements OnInit {
       const id = Number(this.valor);
       if (isNaN(id)) { this.erro = 'ID deve ser número.'; return; }
       this.searchLoading = true;
-      this.service.buscarPorId(id).subscribe({
+      this.service.buscarPorId(id).pipe(takeUntil(this.destroy$)).subscribe({
         next: d => { this.resultado = d; this.searchLoading = false; },
         error: () => { this.erro = 'Não encontrado.'; this.searchLoading = false; }
       });

@@ -779,6 +779,8 @@ export class AreaTecnicoComponent implements OnInit, OnDestroy {
   }
 
   salvar() {
+    if (!this.form.tecnicoId) { this.mostrarToast('Selecione um técnico.', 'error'); this.saving = false; return; }
+    if (!this.form.clienteId) { this.mostrarToast('Selecione um cliente.', 'error'); this.saving = false; return; }
     this.saving = true;
     const tecnico = this.funcionarios.find(f => f.id === this.form.tecnicoId);
     const cliente = this.clientes.find(c => c.id === this.form.clienteId);
@@ -926,46 +928,51 @@ export class AreaTecnicoComponent implements OnInit, OnDestroy {
     });
   }
 
+  private escapar(s: unknown): string {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+  }
+
   imprimirOS() {
     const id = this.editId;
     const o = this.ordens.find(x => x.id === id);
     if (!o) return;
     const w = window.open('', '_blank');
     if (!w) return;
-    w.document.write(`
-      <html><head><title>OS #${o.id} - Prime Assistência</title>
-      <style>
-        body { font-family: 'Courier New', monospace; font-size: 12px; padding: 20px; color: #000; background: #fff; }
-        h1 { font-size: 18px; text-align: center; margin-bottom: 4px; }
-        h2 { font-size: 13px; text-align: center; color: #555; margin-bottom: 20px; font-weight: normal; }
-        table { width: 100%; border-collapse: collapse; margin: 12px 0; }
-        th, td { border: 1px solid #ccc; padding: 6px 10px; text-align: left; font-size: 11px; }
-        th { background: #f0f0f0; font-weight: 700; }
-        .total { font-size: 14px; font-weight: 700; text-align: right; margin-top: 8px; }
-        .footer { text-align: center; margin-top: 24px; font-size: 10px; color: #888; border-top: 1px dashed #ccc; padding-top: 12px; }
-      </style></head><body>
-      <h1>Prime Assistência</h1>
-      <h2>Ordem de Serviço #${o.id}</h2>
-      <table><tr><th>Cliente</th><td>${o.clienteNome}</td></tr>
-      <tr><th>Aparelho</th><td>${o.aparelho}</td></tr>
-      <tr><th>Tipo</th><td>${o.tipoAparelho}</td></tr>
-      <tr><th>Defeito</th><td>${o.defeito}</td></tr>
-      <tr><th>Diagnóstico</th><td>${o.diagnosticos || '—'}</td></tr>
-      <tr><th>Status</th><td>${o.status}</td></tr>
-      <tr><th>Prioridade</th><td>${o.prioridade}</td></tr>
-      <tr><th>Técnico</th><td>${o.tecnicoNome}</td></tr>
-      <tr><th>Entrada</th><td>${o.dataEntrada}</td></tr>
-      ${o.tempoEstimado ? `<tr><th>Prazo</th><td>${o.tempoEstimado} dias</td></tr>` : ''}
-      ${o.garantiaDias ? `<tr><th>Garantia</th><td>${o.garantiaDias} dias (até ${o.garantiaFim})</td></tr>` : ''}
-      ${o.valorServico ? `<tr><th>Mão de obra</th><td>R$ ${o.valorServico.toFixed(2)}</td></tr>` : ''}
-      ${o.valorPecas ? `<tr><th>Peças</th><td>R$ ${o.valorPecas.toFixed(2)}</td></tr>` : ''}
-      ${o.valorTotal ? `<tr><th>Total</th><td>R$ ${o.valorTotal.toFixed(2)}</td></tr>` : ''}
-      </table>
-      ${o.observacoes ? `<p><strong>Observações:</strong> ${o.observacoes}</p>` : ''}
-      <div class="footer">Documento gerado em ${new Date().toLocaleString('pt-BR')} - Prime Assistência</div>
-      <script>window.print();window.close();</script>
-      </body></html>
-    `);
+    const e = (v: unknown) => this.escapar(v);
+    w.document.write([
+      '<html><head><title>OS #', e(o.id), ' - Prime Assistência</title>',
+      '<style>',
+      'body { font-family: \'Courier New\', monospace; font-size: 12px; padding: 20px; color: #000; background: #fff; }',
+      'h1 { font-size: 18px; text-align: center; margin-bottom: 4px; }',
+      'h2 { font-size: 13px; text-align: center; color: #555; margin-bottom: 20px; font-weight: normal; }',
+      'table { width: 100%; border-collapse: collapse; margin: 12px 0; }',
+      'th, td { border: 1px solid #ccc; padding: 6px 10px; text-align: left; font-size: 11px; }',
+      'th { background: #f0f0f0; font-weight: 700; }',
+      '.total { font-size: 14px; font-weight: 700; text-align: right; margin-top: 8px; }',
+      '.footer { text-align: center; margin-top: 24px; font-size: 10px; color: #888; border-top: 1px dashed #ccc; padding-top: 12px; }',
+      '</style></head><body>',
+      '<h1>Prime Assistência</h1>',
+      '<h2>Ordem de Serviço #', e(o.id), '</h2>',
+      '<table><tr><th>Cliente</th><td>', e(o.clienteNome), '</td></tr>',
+      '<tr><th>Aparelho</th><td>', e(o.aparelho), '</td></tr>',
+      '<tr><th>Tipo</th><td>', e(o.tipoAparelho), '</td></tr>',
+      '<tr><th>Defeito</th><td>', e(o.defeito), '</td></tr>',
+      '<tr><th>Diagnóstico</th><td>', e(o.diagnosticos || '—'), '</td></tr>',
+      '<tr><th>Status</th><td>', e(o.status), '</td></tr>',
+      '<tr><th>Prioridade</th><td>', e(o.prioridade), '</td></tr>',
+      '<tr><th>Técnico</th><td>', e(o.tecnicoNome), '</td></tr>',
+      '<tr><th>Entrada</th><td>', e(o.dataEntrada), '</td></tr>',
+      o.tempoEstimado ? '<tr><th>Prazo</th><td>' + e(o.tempoEstimado) + ' dias</td></tr>' : '',
+      o.garantiaDias ? '<tr><th>Garantia</th><td>' + e(o.garantiaDias) + ' dias (até ' + e(o.garantiaFim) + ')</td></tr>' : '',
+      o.valorServico ? '<tr><th>Mão de obra</th><td>R$ ' + e(o.valorServico.toFixed(2)) + '</td></tr>' : '',
+      o.valorPecas ? '<tr><th>Peças</th><td>R$ ' + e(o.valorPecas.toFixed(2)) + '</td></tr>' : '',
+      o.valorTotal ? '<tr><th>Total</th><td>R$ ' + e(o.valorTotal.toFixed(2)) + '</td></tr>' : '',
+      '</table>',
+      o.observacoes ? '<p><strong>Observações:</strong> ' + e(o.observacoes) + '</p>' : '',
+      '<div class="footer">Documento gerado em ', e(new Date().toLocaleString('pt-BR')), ' - Prime Assistência</div>',
+      '<script>window.print();window.close();<\/script>',
+      '</body></html>'
+    ].join(''));
     w.document.close();
   }
 

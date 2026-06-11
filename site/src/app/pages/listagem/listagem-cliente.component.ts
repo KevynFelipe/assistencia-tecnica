@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, ActivatedRoute } from '@angular/router';
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
 import { ClientesService } from '../../core/services/clientes.service';
 import { Cliente } from '../../core/types/types';
 
@@ -86,23 +87,28 @@ import { Cliente } from '../../core/types/types';
     .btn-rec:hover { background: var(--danger-hover); }
   `]
 })
-export class ListagemClienteComponent implements OnInit {
+export class ListagemClienteComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   lista: Cliente[] = [];
   erro = '';
   constructor(private service: ClientesService, private route: ActivatedRoute) {}
   ngOnInit() {
     this.carregar();
-    this.route.queryParams.subscribe(() => this.carregar());
+    this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(() => this.carregar());
+  }
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
   carregar() {
     this.erro = '';
-    this.service.listar().subscribe({
+    this.service.listar().pipe(takeUntil(this.destroy$)).subscribe({
       next: d => this.lista = d,
       error: () => this.erro = 'Erro ao conectar ao servidor.'
     });
   }
   excluir(id: number | string) {
-    if (id) this.service.excluir(id).subscribe({
+    if (id) this.service.excluir(id).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => this.lista = this.lista.filter(c => c.id !== id),
       error: () => this.erro = 'Erro ao excluir.'
     });

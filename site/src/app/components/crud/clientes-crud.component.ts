@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Subject, takeUntil } from 'rxjs';
 import { ClientesService } from '../../core/services/clientes.service';
 import { Cliente } from '../../core/types/types';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
@@ -221,7 +222,7 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
     .success::before { content: '\u2713'; font-weight: 700; }
   `]
 })
-export class ClientesCrudComponent implements OnInit {
+export class ClientesCrudComponent implements OnInit, OnDestroy {
   constructor(private service: ClientesService) {}
 
   todos: Cliente[] = [];
@@ -241,8 +242,6 @@ export class ClientesCrudComponent implements OnInit {
 
   get ativos() { return this.todos.filter(c => c.ativo); }
   get inativos() { return this.todos.filter(c => !c.ativo); }
-
-  ngOnInit() { this.listar(); }
 
   private maskTel(v: string): string {
     const d = v.replace(/\D/g, '').slice(0, 11);
@@ -267,9 +266,20 @@ export class ClientesCrudComponent implements OnInit {
     return `${d.slice(0,3)}.${d.slice(3,6)}.${d.slice(6,9)}-${d.slice(9)}`;
   }
 
+  private destroy$ = new Subject<void>();
+
+  ngOnInit() {
+    this.listar();
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   listar() {
     this.listLoading = true;
-    this.service.listar().subscribe({
+    this.service.listar().pipe(takeUntil(this.destroy$)).subscribe({
       next: d => { this.todos = d; this.listLoading = false; },
       error: () => { this.erroGeral = 'Erro ao carregar.'; this.listLoading = false; }
     });
@@ -317,7 +327,7 @@ export class ClientesCrudComponent implements OnInit {
       ? this.service.editar({ ...payload, id: this.editId! })
       : this.service.incluir(payload);
 
-    op.subscribe({
+    op.pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.loading = false;
         this.showForm = false;
@@ -345,7 +355,7 @@ export class ClientesCrudComponent implements OnInit {
   }
   confirmOk() {
     const c = this.confirm.item; if (!c?.id) return; this.confirm.loading = true;
-    this.service.editar({ ...c, ativo: this.confirm.isReativar }).subscribe({
+    this.service.editar({ ...c, ativo: this.confirm.isReativar }).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.confirm = { show: false, title: '', text: '', loading: false, item: null, isReativar: false };
         this.sucesso = this.confirm.isReativar ? 'Cliente reativado.' : 'Cliente arquivado.';
@@ -364,7 +374,7 @@ export class ClientesCrudComponent implements OnInit {
       const id = Number(this.valor);
       if (isNaN(id)) { this.erro = 'ID deve ser número.'; return; }
       this.searchLoading = true;
-      this.service.buscarPorId(id).subscribe({
+      this.service.buscarPorId(id).pipe(takeUntil(this.destroy$)).subscribe({
         next: d => { this.resultado = d; this.searchLoading = false; },
         error: () => { this.erro = 'Não encontrado.'; this.searchLoading = false; }
       });

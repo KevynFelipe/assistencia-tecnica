@@ -1,6 +1,6 @@
 /** Funcionário da assistência técnica */
 export interface Funcionario {
-  id?: number | string;
+  id: number;
   nome: string;
   cargo: string;
   telefone: string;
@@ -11,7 +11,7 @@ export interface Funcionario {
 
 /** Cliente pessoa física ou jurídica */
 export interface Cliente {
-  id?: number | string;
+  id: number;
   nome: string;
   email: string;
   telefone: string;

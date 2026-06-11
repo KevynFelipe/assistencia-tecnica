@@ -408,7 +408,7 @@ export class AreaGerenteComponent implements OnInit, OnDestroy {
     this.performanceTecnicos = this.funcionarios.map(f => {
       const ordensDoTecnico = this.ordens.filter(o => o.tecnicoId === f.id);
       return {
-        id: f.id ?? 0,
+        id: Number(f.id ?? 0),
         nome: f.nome,
         total: ordensDoTecnico.length,
         concluidas: ordensDoTecnico.filter(o => o.status === 'Entregue').length,

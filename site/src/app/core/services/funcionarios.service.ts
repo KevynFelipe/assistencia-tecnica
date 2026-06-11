@@ -2,10 +2,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Funcionario } from '../types/types';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class FuncionariosService {
-  private readonly API = 'http://localhost:3000/funcionarios';
+  private readonly API = `${environment.apiUrl}/funcionarios`;
   constructor(private http: HttpClient) {}
 
   listar(): Observable<Funcionario[]> {

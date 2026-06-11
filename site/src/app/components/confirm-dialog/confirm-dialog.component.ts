@@ -33,47 +33,8 @@ import { CommonModule } from '@angular/common';
     }
   `,
   styles: [`
-    .modal-overlay {
-      position: fixed; inset: 0; z-index: 3000;
-      background: rgba(0,0,0,.6); backdrop-filter: blur(4px);
-      display: flex; align-items: center; justify-content: center;
-      animation: fadeIn .2s ease-out;
-    }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    .modal {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 16px; padding: 32px; max-width: 400px; width: 90%;
-      text-align: center; box-shadow: 0 24px 80px rgba(0,0,0,.5);
-      animation: scaleIn .2s ease-out;
-    }
-    @keyframes scaleIn { from { transform: scale(.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    .modal-icon { margin-bottom: 16px; }
     .icon-danger { color: var(--danger); }
     .icon-warn { color: #fbbf24; }
-    .modal-title { font-size: 1.15rem; font-weight: 700; color: var(--text); margin-bottom: 8px; }
-    .modal-text { font-size: .9rem; color: var(--text-muted); margin-bottom: 24px; }
-    .modal-actions { display: flex; gap: 10px; justify-content: center; }
-    .btn-sec {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 11px 24px; background: var(--surface-hover); color: var(--text);
-      border: none; border-radius: 8px; font-size: .9rem; font-weight: 500;
-      cursor: pointer; transition: all .2s;
-    }
-    .btn-sec:hover { background: var(--border); }
-    .btn-danger {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 11px 24px; background: var(--danger); color: #fff;
-      border: none; border-radius: 8px; font-size: .9rem; font-weight: 600;
-      cursor: pointer; transition: all .2s;
-    }
-    .btn-danger:hover { background: var(--danger-hover); transform: translateY(-1px); }
-    .btn-danger:disabled { opacity: .5; cursor: not-allowed; transform: none; }
-    .spinner-sm {
-      width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3);
-      border-top-color: #fff; border-radius: 50%;
-      animation: spin .6s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
   `]
 })
 export class ConfirmDialogComponent {

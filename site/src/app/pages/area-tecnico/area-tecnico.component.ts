@@ -1,19 +1,25 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Subject, takeUntil } from 'rxjs';
 import { OrdensService } from '../../core/services/ordens.service';
 import { ClientesService } from '../../core/services/clientes.service';
 import { FuncionariosService } from '../../core/services/funcionarios.service';
 import { EquipamentosService } from '../../core/services/equipamentos.service';
 import { AuthService } from '../../core/services/auth.service';
-import { OrdemServico, Cliente, Funcionario, Equipamento } from '../../core/types/types';
+import { OrdemServico, Cliente, Funcionario, Equipamento, Chamado } from '../../core/types/types';
+import { ClientesCrudComponent } from '../../components/crud/clientes-crud.component';
+import { EquipamentosCrudComponent } from '../../components/crud/equipamentos-crud.component';
+import { EstoqueCrudComponent } from '../../components/crud/estoque-crud.component';
+import { FuncionariosCrudComponent } from '../../components/crud/funcionarios-crud.component';
+import { ChamadosCrudComponent } from '../../components/crud/chamados-crud.component';
+import { ChamadosService } from '../../core/services/chamados.service';
 
 @Component({
   selector: 'app-area-tecnico',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, ClientesCrudComponent, EquipamentosCrudComponent, EstoqueCrudComponent, FuncionariosCrudComponent, ChamadosCrudComponent],
   template: `
     <div class="dashboard">
       <header class="dash-header">
@@ -93,6 +99,44 @@ import { OrdemServico, Cliente, Funcionario, Equipamento } from '../../core/type
         </div>
       </div>
 
+      <!-- Dashboard Analytics -->
+      <div class="dash-analytics">
+        <div class="dash-analytics-grid">
+          <div class="analytics-card">
+            <div class="analytics-card-header">
+              <span class="analytics-label">Faturamento Total</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <span class="analytics-value">R$ {{ analytics.faturamentoTotal.toFixed(2) }}</span>
+            <span class="analytics-sub">{{ analytics.ordensFechadas }} OS concluídas</span>
+          </div>
+          <div class="analytics-card">
+            <div class="analytics-card-header">
+              <span class="analytics-label">Ticket Médio</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/></svg>
+            </div>
+            <span class="analytics-value">R$ {{ analytics.ticketMedio.toFixed(2) }}</span>
+            <span class="analytics-sub">por OS</span>
+          </div>
+          <div class="analytics-card">
+            <div class="analytics-card-header">
+              <span class="analytics-label">Taxa Aprovação</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <span class="analytics-value">{{ analytics.taxaAprovacao }}%</span>
+            <span class="analytics-sub">orçamentos aprovados</span>
+          </div>
+          <div class="analytics-card">
+            <div class="analytics-card-header">
+              <span class="analytics-label">Em Garantia</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <span class="analytics-value">{{ analytics.emGarantia }}</span>
+            <span class="analytics-sub">OS com garantia ativa</span>
+          </div>
+        </div>
+      </div>
+
       <!-- Toast -->
       @if (toast.show) {
         <div class="toast" [class]="'toast-' + toast.tipo">
@@ -134,6 +178,8 @@ import { OrdemServico, Cliente, Funcionario, Equipamento } from '../../core/type
         <div class="dash-heading">
           <h2>Ordens de Serviço</h2>
           <div class="dash-heading-actions">
+            <input [(ngModel)]="filtroDataInicio" type="date" (change)="aplicarFiltro()" class="inp inp-sm" title="Data início"/>
+            <input [(ngModel)]="filtroDataFim" type="date" (change)="aplicarFiltro()" class="inp inp-sm" title="Data fim"/>
             <select [(ngModel)]="filtroStatus" (change)="aplicarFiltro()" class="inp inp-sm">
               <option value="">Todos os status</option>
               <option value="Na Fila">Na Fila</option>
@@ -142,6 +188,9 @@ import { OrdemServico, Cliente, Funcionario, Equipamento } from '../../core/type
               <option value="Pronto">Pronto</option>
               <option value="Entregue">Entregue</option>
             </select>
+            <button class="btn-sec btn-sm-icon" (click)="exportarCSV()" title="Exportar CSV">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </button>
             <div class="view-toggle">
               <button class="view-btn" [class.active]="viewMode === 'table'" (click)="viewMode='table'" title="Visualizar tabela">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
@@ -194,6 +243,7 @@ import { OrdemServico, Cliente, Funcionario, Equipamento } from '../../core/type
                 <option value="Entregue">Entregue</option>
               </select>
               <input [(ngModel)]="form.tempoEstimado" type="number" placeholder="Tempo estimado (dias)" class="inp"/>
+              <input [(ngModel)]="form.garantiaDias" type="number" placeholder="Garantia (dias)" class="inp"/>
             </div>
             <textarea [(ngModel)]="form.defeito" placeholder="Defeito relatado" class="inp inp-area" rows="2"></textarea>
             <textarea [(ngModel)]="form.diagnosticos" placeholder="Diagnóstico técnico" class="inp inp-area" rows="2"></textarea>
@@ -240,14 +290,14 @@ import { OrdemServico, Cliente, Funcionario, Equipamento } from '../../core/type
         @if (viewMode === 'kanban') {
           <div class="kanban-board">
             @for (col of colunasKanban; track col.key) {
-              <div class="kanban-col">
+              <div class="kanban-col" (drop)="onDrop($event, col.key)" (dragover)="onDragOver($event)">
                 <div class="kanban-col-header" [class]="'kh-' + col.cls">
                   <span class="kanban-col-title">{{ col.label }}</span>
                   <span class="kanban-col-count">{{ col.itens.length }}</span>
                 </div>
                 <div class="kanban-col-body">
                   @for (o of col.itens; track o.id) {
-                    <div class="kanban-card" [class]="'kc-prio-' + o.prioridade.toLowerCase()" (click)="editar(o)">
+                    <div class="kanban-card" [class]="'kc-prio-' + o.prioridade.toLowerCase()" (click)="editar(o)" draggable="true" (dragstart)="onDragStart($event, o)" (dragend)="onDragEnd($event)">
                       <div class="kc-top">
                         <span class="kc-id">#{{ o.id }}</span>
                         <span class="prio-badge" [class]="'prio-' + o.prioridade.toLowerCase()">{{ o.prioridade }}</span>
@@ -256,6 +306,11 @@ import { OrdemServico, Cliente, Funcionario, Equipamento } from '../../core/type
                       <span class="kc-cliente">{{ o.clienteNome }}</span>
                       @if (o.tempoEstimado) {
                         <span class="kc-prazo">{{ o.tempoEstimado }}d</span>
+                      }
+                      @if (o.garantiaFim) {
+                        <span class="kc-garantia" [class.garantia-ok]="garantiaAtiva(o)" [class.garantia-exp]="!garantiaAtiva(o)">
+                          {{ garantiaAtiva(o) ? 'Gar. ' + o.garantiaFim : 'Gar. Expirada' }}
+                        </span>
                       }
                       <div class="kc-footer">
                         <span class="kc-tecnico">{{ o.tecnicoNome }}</span>
@@ -291,6 +346,7 @@ import { OrdemServico, Cliente, Funcionario, Equipamento } from '../../core/type
                       <th>Entrada</th>
                       <th>Prev.</th>
                       <th>Valor</th>
+                      <th>Garantia</th>
                       <th>Ações</th>
                     </tr>
                 </thead>
@@ -310,6 +366,13 @@ import { OrdemServico, Cliente, Funcionario, Equipamento } from '../../core/type
                         <td>{{ o.dataEntrada }}</td>
                         <td>{{ o.tempoEstimado ? o.tempoEstimado + 'd' : '-' }}</td>
                         <td>{{ o.valorTotal ? 'R$ ' + o.valorTotal.toFixed(2) : '-' }}</td>
+                        <td>
+                          @if (o.garantiaFim) {
+                            <span class="garantia-badge" [class.garantia-ok]="garantiaAtiva(o)" [class.garantia-exp]="!garantiaAtiva(o)">
+                              {{ garantiaAtiva(o) ? 'Até ' + o.garantiaFim : 'Expirada' }}
+                            </span>
+                          } @else { - }
+                        </td>
                         <td class="actions">
                           <button class="btn-sm btn-blue" (click)="editar(o)">Editar</button>
                           <button class="btn-sm btn-red" (click)="excluir(o)">Excluir</button>
@@ -322,6 +385,39 @@ import { OrdemServico, Cliente, Funcionario, Equipamento } from '../../core/type
           </div>
         }
       </main>
+
+      <!-- Abas de Gestão -->
+      <div class="crud-section">
+        <div class="crud-tabs">
+          <button class="crud-tab" [class.active]="crudAba === 'clientes'" (click)="crudAba = 'clientes'">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            Clientes
+          </button>
+          <button class="crud-tab" [class.active]="crudAba === 'equipamentos'" (click)="crudAba = 'equipamentos'">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+            Equipamentos
+          </button>
+          <button class="crud-tab" [class.active]="crudAba === 'estoque'" (click)="crudAba = 'estoque'">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+            Estoque
+          </button>
+          <button class="crud-tab" [class.active]="crudAba === 'funcionarios'" (click)="crudAba = 'funcionarios'">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Funcionários
+          </button>
+          <button class="crud-tab" [class.active]="crudAba === 'chamados'" (click)="crudAba = 'chamados'">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            Chamados
+          </button>
+        </div>
+        <div class="crud-content">
+          @if (crudAba === 'clientes') { <app-clientes-crud/> }
+          @if (crudAba === 'equipamentos') { <app-equipamentos-crud/> }
+          @if (crudAba === 'estoque') { <app-estoque-crud/> }
+          @if (crudAba === 'funcionarios') { <app-funcionarios-crud/> }
+          @if (crudAba === 'chamados') { <app-chamados-crud/> }
+        </div>
+      </div>
     </div>
   `,
   styles: [`
@@ -329,7 +425,7 @@ import { OrdemServico, Cliente, Funcionario, Equipamento } from '../../core/type
 
     .dash-header {
       position: sticky; top: 0; z-index: 100;
-      background: rgba(19,19,26,.9); backdrop-filter: blur(12px);
+      background: rgba(11,17,32,.92); backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
     }
     .dash-header-inner {
@@ -341,7 +437,7 @@ import { OrdemServico, Cliente, Funcionario, Equipamento } from '../../core/type
     .dash-header-right { display: flex; align-items: center; gap: 14px; }
     .dash-badge {
       font-size: .8rem; font-weight: 600; padding: 6px 16px;
-      background: rgba(59,130,246,.15); color: var(--primary);
+      background: var(--primary-light); color: var(--primary);
       border-radius: 12px; letter-spacing: .02em;
     }
     .dash-user { display: flex; align-items: center; gap: 10px; }
@@ -374,8 +470,8 @@ import { OrdemServico, Cliente, Funcionario, Equipamento } from '../../core/type
       width: 40px; height: 40px; border-radius: 10px;
       display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
-    .stat-icon-all { background: rgba(59,130,246,.12); color: #60a5fa; }
-    .stat-icon-fila { background: rgba(59,130,246,.12); color: #60a5fa; }
+    .stat-icon-all { background: var(--primary-light); color: var(--primary); }
+    .stat-icon-fila { background: var(--primary-light); color: var(--primary); }
     .stat-icon-analise { background: rgba(234,179,8,.12); color: #fbbf24; }
     .stat-icon-aprovado { background: rgba(168,85,247,.12); color: #c084fc; }
     .stat-icon-pronto { background: rgba(34,197,94,.12); color: #4ade80; }
@@ -386,49 +482,33 @@ import { OrdemServico, Cliente, Funcionario, Equipamento } from '../../core/type
     @media (max-width: 860px) { .dash-stats-inner { grid-template-columns: repeat(3, 1fr); } }
     @media (max-width: 500px) { .dash-stats-inner { grid-template-columns: repeat(2, 1fr); } }
 
-    .toast {
-      position: fixed; top: 80px; right: 24px; z-index: 2000;
-      display: flex; align-items: center; gap: 10px;
-      padding: 14px 20px; border-radius: 10px;
-      font-size: .9rem; font-weight: 500;
-      box-shadow: 0 8px 30px rgba(0,0,0,.3);
-      animation: slideIn .3s ease-out;
+    .dash-analytics {
+      max-width: 1280px; margin: 0 auto; padding: 20px 24px 0;
     }
+    .dash-analytics-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+    }
+    @media (max-width: 860px) { .dash-analytics-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 500px) { .dash-analytics-grid { grid-template-columns: 1fr; } }
+    .analytics-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 16px;
+    }
+    .analytics-card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .analytics-label { font-size: .75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+    .analytics-value { font-size: 1.5rem; font-weight: 800; color: var(--text); display: block; }
+    .analytics-sub { font-size: .75rem; color: var(--text-muted); }
+    .btn-sm-icon {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px; padding: 0;
+    }
+
+    .toast { position: fixed; top: 80px; right: 24px; z-index: 2000; display: flex; align-items: center; gap: 10px; padding: 14px 20px; border-radius: 10px; font-size: .9rem; font-weight: 500; box-shadow: 0 8px 30px rgba(0,0,0,.3); animation: slideIn .3s ease-out; }
     .toast-success { background: rgba(34,197,94,.12); border: 1px solid rgba(34,197,94,.2); color: #4ade80; }
     .toast-error { background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.2); color: #f87171; }
-    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-
-    .modal-overlay {
-      position: fixed; inset: 0; z-index: 3000;
-      background: rgba(0,0,0,.6); backdrop-filter: blur(4px);
-      display: flex; align-items: center; justify-content: center;
-      animation: fadeIn .2s ease-out;
-    }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    .modal {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 16px; padding: 32px; max-width: 400px; width: 90%;
-      text-align: center; box-shadow: 0 24px 80px rgba(0,0,0,.5);
-      animation: scaleIn .2s ease-out;
-    }
-    @keyframes scaleIn { from { transform: scale(.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    .modal-icon { margin-bottom: 16px; }
-    .modal-title { font-size: 1.15rem; font-weight: 700; color: var(--text); margin-bottom: 8px; }
-    .modal-text { font-size: .9rem; color: var(--text-muted); margin-bottom: 24px; }
-    .modal-actions { display: flex; gap: 10px; justify-content: center; }
-    .btn-danger {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 11px 24px; background: var(--danger); color: #fff;
-      border: none; border-radius: 8px; font-size: .9rem; font-weight: 600;
-      cursor: pointer; transition: all .2s;
-    }
-    .btn-danger:hover { background: var(--danger-hover); transform: translateY(-1px); }
-    .spinner-sm {
-      width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3);
-      border-top-color: #fff; border-radius: 50%;
-      animation: spin .6s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
 
     .dash-main { max-width: 1280px; margin: 0 auto; padding: 32px 24px; }
 
@@ -453,53 +533,7 @@ import { OrdemServico, Cliente, Funcionario, Equipamento } from '../../core/type
     .form-grid-3 { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
     .form-actions { display: flex; gap: 10px; margin-top: 16px; }
 
-    .inp {
-      background: var(--bg); border: 1px solid var(--border);
-      border-radius: 8px; padding: 11px 16px;
-      color: var(--text); font-size: .9rem;
-      outline: none; transition: all .2s; width: 100%;
-    }
-    .inp:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59,130,246,.1); }
-    .inp-area { resize: vertical; font-family: inherit; }
-
-    .table-wrapper {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 12px; overflow-x: auto;
-    }
-    table { width: 100%; border-collapse: collapse; min-width: 800px; }
-    th, td { padding: 12px 16px; text-align: left; font-size: .85rem; }
-    th {
-      background: var(--surface-hover); font-weight: 600;
-      color: var(--text-muted); text-transform: uppercase;
-      font-size: .7rem; letter-spacing: .6px;
-      border-bottom: 1px solid var(--border); white-space: nowrap;
-    }
-    td { color: var(--text); border-bottom: 1px solid var(--border); }
-    tbody tr:last-child td { border-bottom: none; }
-    tbody tr:hover td { background: rgba(59,130,246,.03); }
     .cell-defeito { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .actions { display: flex; gap: 6px; white-space: nowrap; }
-    .empty { padding: 48px; text-align: center; color: var(--text-muted); }
-
-    .status-badge {
-      display: inline-block; padding: 4px 12px; border-radius: 20px;
-      font-size: .75rem; font-weight: 600; white-space: nowrap;
-    }
-    .status-na-fila { background: rgba(59,130,246,.12); color: #60a5fa; }
-    .status-em-análise { background: rgba(234,179,8,.12); color: #fbbf24; }
-    .status-orçamento-aprovado { background: rgba(168,85,247,.12); color: #c084fc; }
-    .status-pronto { background: rgba(34,197,94,.12); color: #4ade80; }
-    .status-entregue { background: rgba(107,114,128,.12); color: #9ca3af; }
-
-    .prio-badge {
-      display: inline-block; padding: 3px 10px; border-radius: 6px;
-      font-size: .7rem; font-weight: 700; white-space: nowrap; text-transform: uppercase;
-      letter-spacing: .04em;
-    }
-    .prio-baixa { background: rgba(107,114,128,.12); color: #9ca3af; }
-    .prio-normal { background: rgba(59,130,246,.12); color: #60a5fa; }
-    .prio-alta { background: rgba(249,115,22,.12); color: #fb923c; }
-    .prio-urgente { background: rgba(239,68,68,.12); color: #f87171; }
 
     .view-toggle { display: flex; gap: 4px; background: var(--surface-hover); border-radius: 8px; padding: 3px; }
     .view-btn {
@@ -528,7 +562,7 @@ import { OrdemServico, Cliente, Funcionario, Equipamento } from '../../core/type
       border-radius: 12px 12px 0 0; font-size: .82rem; font-weight: 700;
       text-transform: uppercase; letter-spacing: .04em;
     }
-    .kh-fila { background: rgba(59,130,246,.08); color: #60a5fa; }
+    .kh-fila { background: rgba(6,182,212,.1); color: var(--primary); }
     .kh-analise { background: rgba(234,179,8,.08); color: #fbbf24; }
     .kh-aprovado { background: rgba(168,85,247,.08); color: #c084fc; }
     .kh-pronto { background: rgba(34,197,94,.08); color: #4ade80; }
@@ -552,7 +586,7 @@ import { OrdemServico, Cliente, Funcionario, Equipamento } from '../../core/type
     .kanban-card:hover { border-color: var(--primary); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.2); }
     .kc-prio-urgente { border-left-color: #f87171; }
     .kc-prio-alta { border-left-color: #fb923c; }
-    .kc-prio-normal { border-left-color: #60a5fa; }
+    .kc-prio-normal { border-left-color: var(--primary); }
     .kc-prio-baixa { border-left-color: #9ca3af; }
     .kc-top { display: flex; align-items: center; justify-content: space-between; }
     .kc-id { font-weight: 700; font-size: .85rem; color: var(--text); }
@@ -562,6 +596,15 @@ import { OrdemServico, Cliente, Funcionario, Equipamento } from '../../core/type
     .kc-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; font-size: .75rem; }
     .kc-tecnico { color: var(--text-muted); }
     .kc-valor { font-weight: 700; color: var(--primary); }
+    .kc-garantia { font-size: .68rem; font-weight: 600; }
+    .kc-garantia.garantia-ok { color: #4ade80; }
+    .kc-garantia.garantia-exp { color: #f87171; }
+    .garantia-badge {
+      display: inline-block; padding: 2px 8px; border-radius: 4px;
+      font-size: .7rem; font-weight: 600; white-space: nowrap;
+    }
+    .garantia-badge.garantia-ok { background: rgba(34,197,94,.12); color: #4ade80; }
+    .garantia-badge.garantia-exp { background: rgba(239,68,68,.12); color: #f87171; }
     .kanban-empty { text-align: center; padding: 24px; color: var(--text-muted); font-size: .8rem; }
 
     .timeline {
@@ -579,7 +622,7 @@ import { OrdemServico, Cliente, Funcionario, Equipamento } from '../../core/type
     .timeline-dot {
       width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0; margin-top: 2px;
     }
-    .td-na-fila { background: #60a5fa; }
+    .td-na-fila { background: var(--primary); }
     .td-em-análise { background: #fbbf24; }
     .td-orçamento-aprovado { background: #c084fc; }
     .td-pronto { background: #4ade80; }
@@ -589,41 +632,33 @@ import { OrdemServico, Cliente, Funcionario, Equipamento } from '../../core/type
     .timeline-data { font-size: .75rem; color: var(--text-muted); }
     .timeline-resp { font-size: .75rem; color: var(--text-muted); }
 
-    .btn-primary {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 11px 24px; background: var(--primary); color: #fff;
-      border: none; border-radius: 8px; font-size: .9rem; font-weight: 600;
-      cursor: pointer; transition: all .2s; white-space: nowrap;
+    .crud-section {
+      max-width: 1280px; margin: 0 auto; padding: 0 24px 48px;
     }
-    .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
-    .btn-primary:disabled { opacity: .5; cursor: not-allowed; transform: none; }
-    .btn-sec {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 11px 24px; background: var(--surface-hover); color: var(--text);
-      border: none; border-radius: 8px; font-size: .9rem; font-weight: 500;
-      cursor: pointer; transition: all .2s; white-space: nowrap;
+    .crud-tabs {
+      display: flex; gap: 0; margin-bottom: 24px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 4px; overflow-x: auto;
     }
-    .btn-sec:hover { background: var(--border); }
-    .btn-sm {
-      padding: 7px 16px; font-size: .8rem; font-weight: 600;
-      border: none; border-radius: 6px; cursor: pointer; transition: all .2s;
+    .crud-tab {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 12px 20px; background: transparent; color: var(--text-muted);
+      border: none; cursor: pointer; font-size: .82rem; font-weight: 600;
+      border-radius: 8px; transition: all .2s; white-space: nowrap;
     }
-    .btn-blue { background: var(--primary); color: #fff; }
-    .btn-blue:hover { background: var(--primary-hover); transform: translateY(-1px); }
-    .btn-red { background: var(--danger); color: #fff; }
-    .btn-red:hover { background: var(--danger-hover); transform: translateY(-1px); }
+    .crud-tab:hover { color: var(--text); background: var(--surface-hover); }
+    .crud-tab.active { color: #fff; background: var(--primary); }
+    .crud-tab svg { flex-shrink: 0; }
+    .crud-content {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 28px;
+    }
 
-    .err { color: var(--danger); font-size: .9rem; padding: 10px 0; display: flex; align-items: center; gap: 6px; }
-    .err::before { content: '⚠'; }
-    .success {
-      color: var(--success); font-size: .9rem; padding: 10px 16px; font-weight: 500;
-      background: rgba(34,197,94,.08); border: 1px solid rgba(34,197,94,.15);
-      border-radius: 8px; display: flex; align-items: center; gap: 6px; margin-bottom: 16px;
-    }
-    .success::before { content: '✓'; font-weight: 700; }
+    .success { margin-bottom: 16px; }
   `]
 })
-export class AreaTecnicoComponent implements OnInit {
+export class AreaTecnicoComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   constructor(
     private ordensService: OrdensService,
     private clientesService: ClientesService,
@@ -639,6 +674,8 @@ export class AreaTecnicoComponent implements OnInit {
   ordens: OrdemServico[] = [];
   ordensFiltradas: OrdemServico[] = [];
   filtroStatus = '';
+  filtroDataInicio = '';
+  filtroDataFim = '';
 
   showForm = false;
   editId: number | null = null;
@@ -648,11 +685,13 @@ export class AreaTecnicoComponent implements OnInit {
 
   viewMode: 'table' | 'kanban' = 'table';
   showTimeline = false;
+  crudAba: 'clientes' | 'equipamentos' | 'estoque' | 'funcionarios' | 'chamados' = 'clientes';
 
   toast = { show: false, message: '', tipo: 'success' as 'success' | 'error' };
   confirm = { show: false, title: '', text: '', loading: false, item: null as OrdemServico | null };
 
   stats = { total: 0, fila: 0, analise: 0, aprovado: 0, pronto: 0, entregue: 0 };
+  analytics = { faturamentoTotal: 0, ticketMedio: 0, taxaAprovacao: 0, ordensFechadas: 0, emGarantia: 0 };
 
   get colunasKanban() {
     const colunas = [
@@ -681,7 +720,7 @@ export class AreaTecnicoComponent implements OnInit {
       clientes: this.clientesService.listar(),
       equipamentos: this.equipamentosService.listar(),
       ordens: this.ordensService.listar()
-    }).subscribe({
+    }).pipe(takeUntil(this.destroy$)).subscribe({
       next: (r) => {
         this.funcionarios = r.funcionarios;
         this.clientes = r.clientes;
@@ -695,15 +734,41 @@ export class AreaTecnicoComponent implements OnInit {
   }
 
   aplicarFiltro() {
-    this.ordensFiltradas = this.filtroStatus
-      ? this.ordens.filter(o => o.status === this.filtroStatus)
-      : [...this.ordens];
+    let base = [...this.ordens];
+
+    if (this.filtroStatus) {
+      base = base.filter(o => o.status === this.filtroStatus);
+    }
+
+    if (this.filtroDataInicio) {
+      base = base.filter(o => o.dataEntrada >= this.filtroDataInicio);
+    }
+    if (this.filtroDataFim) {
+      base = base.filter(o => o.dataEntrada <= this.filtroDataFim);
+    }
+
+    this.ordensFiltradas = base;
+
     this.stats.total = this.ordens.length;
     this.stats.fila = this.ordens.filter(o => o.status === 'Na Fila').length;
     this.stats.analise = this.ordens.filter(o => o.status === 'Em Análise').length;
     this.stats.aprovado = this.ordens.filter(o => o.status === 'Orçamento Aprovado').length;
     this.stats.pronto = this.ordens.filter(o => o.status === 'Pronto').length;
     this.stats.entregue = this.ordens.filter(o => o.status === 'Entregue').length;
+
+    this.calcularAnalytics();
+  }
+
+  private calcularAnalytics() {
+    const fechadas = this.ordens.filter(o => o.status === 'Entregue');
+    const aprovadas = this.ordens.filter(o => o.status === 'Orçamento Aprovado' || o.status === 'Pronto' || o.status === 'Entregue');
+    const totalOrcamentos = this.ordens.filter(o => o.status !== 'Na Fila').length;
+
+    this.analytics.ordensFechadas = fechadas.length;
+    this.analytics.faturamentoTotal = fechadas.reduce((s, o) => s + (o.valorTotal ?? 0), 0);
+    this.analytics.ticketMedio = fechadas.length ? this.analytics.faturamentoTotal / fechadas.length : 0;
+    this.analytics.taxaAprovacao = totalOrcamentos ? Math.round((aprovadas.length / totalOrcamentos) * 100) : 0;
+    this.analytics.emGarantia = this.ordens.filter(o => o.garantiaFim && new Date(o.garantiaFim) > new Date()).length;
   }
 
   cancelarForm() {
@@ -743,6 +808,8 @@ export class AreaTecnicoComponent implements OnInit {
       prioridade: (this.form.prioridade as OrdemServico['prioridade']) ?? 'Normal',
       dataEntrada: editando ? (this.form.dataEntrada ?? new Date().toISOString().split('T')[0]) : new Date().toISOString().split('T')[0],
       tempoEstimado: this.form.tempoEstimado ? Number(this.form.tempoEstimado) : undefined,
+      garantiaDias: this.form.garantiaDias ? Number(this.form.garantiaDias) : undefined,
+      garantiaFim: this.form.garantiaDias ? new Date(Date.now() + Number(this.form.garantiaDias) * 86400000).toISOString().split('T')[0] : undefined,
       valorServico: this.form.valorServico ? Number(this.form.valorServico) : undefined,
       valorPecas: this.form.valorPecas ? Number(this.form.valorPecas) : undefined,
       valorTotal: (this.form.valorServico ? Number(this.form.valorServico) : 0) + (this.form.valorPecas ? Number(this.form.valorPecas) : 0) || undefined,
@@ -755,7 +822,7 @@ export class AreaTecnicoComponent implements OnInit {
       ? this.ordensService.editar({ ...payload, id: this.editId! })
       : this.ordensService.incluir(payload);
 
-    op.subscribe({
+    op.pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.saving = false;
         this.cancelarForm();
@@ -774,6 +841,55 @@ export class AreaTecnicoComponent implements OnInit {
 
   statusClass(s: string): string {
     return 'status-' + s.toLowerCase().replace(/\s+/g, '-');
+  }
+
+  garantiaAtiva(o: OrdemServico): boolean {
+    return !!o.garantiaFim && new Date(o.garantiaFim) > new Date();
+  }
+
+  dragItem: OrdemServico | null = null;
+
+  onDragStart(e: DragEvent, o: OrdemServico) {
+    this.dragItem = o;
+    e.dataTransfer?.setData('text/plain', String(o.id));
+    if (e.target instanceof HTMLElement) {
+      e.target.style.opacity = '0.5';
+    }
+  }
+
+  onDragOver(e: DragEvent) {
+    e.preventDefault();
+    if (e.currentTarget instanceof HTMLElement) {
+      e.currentTarget.style.background = 'rgba(6,182,212,.05)';
+    }
+  }
+
+  onDragEnd(e: DragEvent) {
+    if (e.target instanceof HTMLElement) {
+      e.target.style.opacity = '';
+    }
+  }
+
+  onDrop(e: DragEvent, novoStatus: string) {
+    e.preventDefault();
+    if (e.currentTarget instanceof HTMLElement) {
+      e.currentTarget.style.background = '';
+    }
+    const o = this.dragItem;
+    this.dragItem = null;
+    if (!o || o.status === novoStatus || !o.id) return;
+
+    const user = this.auth.getUser();
+    const historico = o.historico ? [...o.historico] : [];
+    historico.push({ status: novoStatus, data: new Date().toISOString().replace('T', ' ').slice(0, 16), responsavel: user?.nome ?? 'Sistema' });
+
+    this.ordensService.editar({ ...o, status: novoStatus as OrdemServico['status'], historico }).pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => {
+        this.mostrarToast(`Ordem #${o.id} movida para "${novoStatus}"`);
+        this.carregarDados();
+      },
+      error: () => this.mostrarToast('Erro ao mover ordem.', 'error')
+    });
   }
 
   excluir(o: OrdemServico) {
@@ -796,7 +912,7 @@ export class AreaTecnicoComponent implements OnInit {
     const item = this.confirm.item;
     if (!item?.id) return;
     this.confirm.loading = true;
-    this.ordensService.excluir(item.id).subscribe({
+    this.ordensService.excluir(item.id).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.confirmFechar();
         this.mostrarToast('Ordem excluída com sucesso.');
@@ -840,6 +956,7 @@ export class AreaTecnicoComponent implements OnInit {
       <tr><th>Técnico</th><td>${o.tecnicoNome}</td></tr>
       <tr><th>Entrada</th><td>${o.dataEntrada}</td></tr>
       ${o.tempoEstimado ? `<tr><th>Prazo</th><td>${o.tempoEstimado} dias</td></tr>` : ''}
+      ${o.garantiaDias ? `<tr><th>Garantia</th><td>${o.garantiaDias} dias (até ${o.garantiaFim})</td></tr>` : ''}
       ${o.valorServico ? `<tr><th>Mão de obra</th><td>R$ ${o.valorServico.toFixed(2)}</td></tr>` : ''}
       ${o.valorPecas ? `<tr><th>Peças</th><td>R$ ${o.valorPecas.toFixed(2)}</td></tr>` : ''}
       ${o.valorTotal ? `<tr><th>Total</th><td>R$ ${o.valorTotal.toFixed(2)}</td></tr>` : ''}
@@ -852,8 +969,36 @@ export class AreaTecnicoComponent implements OnInit {
     w.document.close();
   }
 
+  private csvEscape(val: unknown): string {
+    const s = String(val ?? '');
+    return s.includes(',') || s.includes('"') || s.includes('\n') ? `"${s.replace(/"/g, '""')}"` : s;
+  }
+
+  exportarCSV() {
+    const rows = this.ordensFiltradas.map(o => [
+      this.csvEscape(o.id), this.csvEscape(o.clienteNome), this.csvEscape(o.aparelho),
+      this.csvEscape(o.status), this.csvEscape(o.prioridade),
+      this.csvEscape(o.tecnicoNome), this.csvEscape(o.dataEntrada), this.csvEscape(o.valorTotal?.toFixed(2) ?? '')
+    ].join(','));
+    const header = 'ID,Cliente,Aparelho,Status,Prioridade,Técnico,Entrada,Valor';
+    const csv = [header, ...rows].join('\n');
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ordens-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    this.mostrarToast('CSV exportado com sucesso.');
+  }
+
   sair() {
     this.auth.logout();
     this.router.navigate(['/']);
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

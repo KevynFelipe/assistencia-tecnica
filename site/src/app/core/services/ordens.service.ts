@@ -2,10 +2,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { OrdemServico } from '../types/types';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class OrdensService {
-  private readonly API = 'http://localhost:3000/ordens';
+  private readonly API = `${environment.apiUrl}/ordens`;
   constructor(private http: HttpClient) {}
 
   listar(): Observable<OrdemServico[]> {

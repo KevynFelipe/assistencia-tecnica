@@ -1,13 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { OrdensService } from '../../core/services/ordens.service';
 import { MensagensService } from '../../core/services/mensagens.service';
 import { ChamadosService } from '../../core/services/chamados.service';
+import { ChamadoMensagensService } from '../../core/services/chamado-mensagens.service';
 import { EquipamentosService } from '../../core/services/equipamentos.service';
-import { OrdemServico, Mensagem, Chamado, Equipamento } from '../../core/types/types';
+import { OrdemServico, Mensagem, Chamado, ChamadoMensagem } from '../../core/types/types';
 
 @Component({
   selector: 'app-minha-conta',
@@ -155,7 +157,7 @@ import { OrdemServico, Mensagem, Chamado, Equipamento } from '../../core/types/t
         @if (aba === 'chamados') {
           <div class="section-card">
             <div class="chamados-header">
-              <h2>Meus Chamados</h2>
+              <h2>Meus Chamados ({{ meusChamados.length }})</h2>
               <button class="btn-primary" (click)="showChamadoForm = !showChamadoForm">
                 {{ showChamadoForm ? 'Cancelar' : '+ Novo Chamado' }}
               </button>
@@ -181,17 +183,56 @@ import { OrdemServico, Mensagem, Chamado, Equipamento } from '../../core/types/t
             } @else {
               <div class="chamados-lista">
                 @for (ch of meusChamados; track ch.id) {
-                  <div class="chamado-card">
+                  <div class="chamado-card" [class.chamado-card-ativo]="chamadoAberto?.id === ch.id" (click)="abrirConversa(ch)">
                     <div class="chamado-top">
                       <span class="chamado-id">#{{ ch.id }}</span>
                       <span class="chamado-status" [class]="chamadoStatusClass(ch.status)">{{ ch.status }}</span>
                     </div>
                     <p class="chamado-desc">{{ ch.descricao }}</p>
-                    @if (ch.equipamentoNome) {
-                      <span class="chamado-equip">Equipamento: {{ ch.equipamentoNome }}</span>
-                    }
-                    <span class="chamado-data">{{ ch.data }}</span>
+                    <div class="chamado-footer">
+                      @if (ch.equipamentoNome) {
+                        <span class="chamado-equip">{{ ch.equipamentoNome }}</span>
+                      }
+                      <span class="chamado-data">{{ ch.data }}</span>
+                      @if (chamadoMsgCount(ch.id) > 0) {
+                        <span class="chamado-msgs">{{ chamadoMsgCount(ch.id) }} resp{{ chamadoMsgCount(ch.id) !== 1 ? 'ostas' : 'osta' }}</span>
+                      }
+                    </div>
                   </div>
+
+                  <!-- Conversa do chamado selecionado -->
+                  @if (chamadoAberto?.id === ch.id) {
+                    <div class="conversa-thread" (click)="$event.stopPropagation()">
+                      @if (conversaMensagens.length === 0) {
+                        <p class="conversa-empty">Ainda não há respostas. A equipe irá responder em breve.</p>
+                      }
+                      @for (m of conversaMensagens; track m.id) {
+                        <div class="conv-msg" [class.conv-cliente]="m.remetente === 'cliente'" [class.conv-equipe]="m.remetente !== 'cliente'">
+                          <div class="conv-msg-header">
+                            <strong>{{ m.remetenteNome }}</strong>
+                            <span class="conv-role">
+                              @if (m.remetente !== 'cliente') { Equipe } @else { Você }
+                            </span>
+                            <span class="conv-time">{{ m.data | slice:0:16 }}</span>
+                          </div>
+                          <p class="conv-text">{{ m.texto }}</p>
+                        </div>
+                      }
+                      @if (ch.status !== 'Fechado') {
+                        <div class="conv-reply">
+                          <textarea [(ngModel)]="convReplyTexto" class="inp inp-area" rows="2" placeholder="Digite sua resposta..." (keydown.enter)="onReplyKeydown($event)"></textarea>
+                          <div class="conv-reply-bar">
+                            <span class="conv-hint">Enter para enviar · Shift+Enter para nova linha</span>
+                            <button class="btn-primary" [disabled]="!convReplyTexto.trim() || sendingReply" (click)="enviarResposta()">
+                              @if (sendingReply) { Enviando... } @else { Responder }
+                            </button>
+                          </div>
+                        </div>
+                      } @else {
+                        <p class="conv-fechado">Este chamado está fechado.</p>
+                      }
+                    </div>
+                  }
                 }
               </div>
             }
@@ -205,7 +246,7 @@ import { OrdemServico, Mensagem, Chamado, Equipamento } from '../../core/types/t
 
     .cliente-header {
       position: sticky; top: 0; z-index: 100;
-      background: rgba(19,19,26,.9); backdrop-filter: blur(12px);
+      background: rgba(11,17,32,.92); backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
     }
     .cliente-header-inner {
@@ -217,7 +258,7 @@ import { OrdemServico, Mensagem, Chamado, Equipamento } from '../../core/types/t
     .cliente-header-right { display: flex; align-items: center; gap: 14px; }
     .cliente-badge {
       font-size: .8rem; font-weight: 600; padding: 6px 16px;
-      background: rgba(59,130,246,.15); color: var(--primary);
+      background: var(--primary-light); color: var(--primary);
       border-radius: 12px;
     }
     .cliente-logout {
@@ -256,14 +297,14 @@ import { OrdemServico, Mensagem, Chamado, Equipamento } from '../../core/types/t
       background: var(--bg); border: 1px solid var(--border);
       border-radius: 12px; padding: 20px; transition: all .2s;
     }
-    .pedido-card:hover { border-color: rgba(59,130,246,.2); }
+    .pedido-card:hover { border-color: rgba(6,182,212,.2); }
     .pedido-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
     .pedido-id { font-weight: 700; color: var(--text); font-size: .95rem; }
     .pedido-status {
       display: inline-block; padding: 4px 12px; border-radius: 20px;
       font-size: .75rem; font-weight: 600;
     }
-    .status-na-fila { background: rgba(59,130,246,.12); color: #60a5fa; }
+    .status-na-fila { background: var(--primary-light); color: var(--primary); }
     .status-em-análise { background: rgba(234,179,8,.12); color: #fbbf24; }
     .status-orçamento-aprovado { background: rgba(168,85,247,.12); color: #c084fc; }
     .status-pronto { background: rgba(34,197,94,.12); color: #4ade80; }
@@ -275,7 +316,7 @@ import { OrdemServico, Mensagem, Chamado, Equipamento } from '../../core/types/t
     .pedido-defeito { font-size: .85rem; color: var(--text-muted); line-height: 1.5; }
     .pedido-diagnostico {
       margin-top: 10px; padding: 10px 14px;
-      background: rgba(59,130,246,.05); border-radius: 8px;
+      background: var(--primary-light); border-radius: 8px;
       font-size: .83rem; color: var(--text-muted); line-height: 1.5;
     }
     .pedido-diagnostico strong { color: var(--text); }
@@ -285,14 +326,6 @@ import { OrdemServico, Mensagem, Chamado, Equipamento } from '../../core/types/t
 
     .chat-select { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
     .chat-select label { font-weight: 600; color: var(--text-muted); font-size: .85rem; white-space: nowrap; }
-    .inp {
-      background: var(--bg); border: 1px solid var(--border);
-      border-radius: 8px; padding: 11px 16px;
-      color: var(--text); font-size: .9rem;
-      outline: none; transition: all .2s; width: 100%;
-    }
-    .inp:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59,130,246,.1); }
-    .inp-area { resize: vertical; font-family: inherit; }
     .chat-box {
       border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
     }
@@ -306,7 +339,7 @@ import { OrdemServico, Mensagem, Chamado, Equipamento } from '../../core/types/t
       font-size: .87rem; line-height: 1.5;
     }
     .chat-cliente {
-      align-self: flex-end; background: rgba(59,130,246,.12);
+      align-self: flex-end; background: var(--primary-light);
       border-bottom-right-radius: 4px;
     }
     .chat-tecnico {
@@ -337,41 +370,46 @@ import { OrdemServico, Mensagem, Chamado, Equipamento } from '../../core/types/t
       display: inline-block; padding: 3px 10px; border-radius: 12px;
       font-size: .72rem; font-weight: 600;
     }
-    .ch-status-aberto { background: rgba(59,130,246,.12); color: #60a5fa; }
+    .ch-status-aberto { background: var(--primary-light); color: var(--primary); }
     .ch-status-em-andamento { background: rgba(234,179,8,.12); color: #fbbf24; }
     .ch-status-resolvido { background: rgba(34,197,94,.12); color: #4ade80; }
     .ch-status-fechado { background: rgba(107,114,128,.12); color: #9ca3af; }
     .chamado-desc { font-size: .85rem; color: var(--text-muted); line-height: 1.5; }
     .chamado-equip { font-size: .8rem; color: var(--text-muted); }
     .chamado-data { font-size: .78rem; color: var(--text-muted); }
-
-    .btn-primary {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 11px 24px; background: var(--primary); color: #fff;
-      border: none; border-radius: 8px; font-size: .9rem; font-weight: 600;
-      cursor: pointer; transition: all .2s; white-space: nowrap;
+    .chamado-card { cursor: pointer; transition: all .15s; }
+    .chamado-card:hover { border-color: var(--primary); }
+    .chamado-card-ativo { border-color: var(--primary); border-left: 3px solid var(--primary); }
+    .chamado-footer { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+    .chamado-msgs { font-size: .75rem; color: var(--primary); font-weight: 600; margin-left: auto; }
+    .conversa-thread {
+      margin: -8px 0 8px; padding: 16px 20px;
+      background: var(--surface); border: 1px solid var(--border); border-top: none;
+      border-radius: 0 0 10px 10px;
+      display: flex; flex-direction: column; gap: 10px;
     }
-    .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
-    .btn-primary:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+    .conversa-empty { text-align: center; padding: 20px; color: var(--text-muted); font-size: .85rem; }
+    .conv-msg { padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border); }
+    .conv-cliente { background: var(--primary-light); margin-right: 40px; }
+    .conv-equipe { background: var(--surface-hover); margin-left: 40px; }
+    .conv-msg-header { display: flex; gap: 10px; align-items: center; margin-bottom: 4px; flex-wrap: wrap; }
+    .conv-msg-header strong { font-size: .8rem; color: var(--text); }
+    .conv-role { font-size: .68rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+    .conv-time { font-size: .7rem; color: var(--text-muted); margin-left: auto; }
+    .conv-text { font-size: .85rem; color: var(--text); line-height: 1.5; margin: 0; white-space: pre-wrap; }
+    .conv-reply { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+    .conv-reply .inp-area { width: 100%; }
+    .conv-reply-bar { display: flex; align-items: center; justify-content: space-between; }
+    .conv-hint { font-size: .72rem; color: var(--text-muted); }
+    .conv-fechado { text-align: center; padding: 12px; color: var(--text-muted); font-size: .82rem; font-style: italic; }
 
-    .toast {
-      position: fixed; top: 80px; right: 24px; z-index: 2000;
-      display: flex; align-items: center; gap: 10px;
-      padding: 14px 20px; border-radius: 10px;
-      font-size: .9rem; font-weight: 500;
-      box-shadow: 0 8px 30px rgba(0,0,0,.3);
-      animation: slideIn .3s ease-out;
-    }
-    .toast-success { background: rgba(34,197,94,.12); border: 1px solid rgba(34,197,94,.2); color: #4ade80; }
-    .toast-error { background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.2); color: #f87171; }
-    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
   `]
 })
-export class MinhaContaComponent implements OnInit {
+export class MinhaContaComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   aba: 'pedidos' | 'chat' | 'chamados' = 'pedidos';
 
   pedidos: OrdemServico[] = [];
-  messagens: Mensagem[] = [];
   meusChamados: Chamado[] = [];
   meusEquipamentos: any[] = [];
 
@@ -384,11 +422,18 @@ export class MinhaContaComponent implements OnInit {
 
   toast = { show: false, message: '', tipo: 'success' as 'success' | 'error' };
 
+  chamadoAberto: Chamado | null = null;
+  conversaMensagens: ChamadoMensagem[] = [];
+  convReplyTexto = '';
+  sendingReply = false;
+  msgCountMap: Record<number, number> = {};
+
   constructor(
     public auth: AuthService,
     private ordensService: OrdensService,
     private mensagensService: MensagensService,
     private chamadosService: ChamadosService,
+    private chamadoMsgService: ChamadoMensagensService,
     private equipamentosService: EquipamentosService,
     private router: Router
   ) {}
@@ -408,9 +453,13 @@ export class MinhaContaComponent implements OnInit {
     const userId = this.auth.getUser()?.id;
     if (!userId) return;
 
-    this.ordensService.listarPorCliente(userId).subscribe(d => this.pedidos = d);
-    this.chamadosService.listarPorCliente(userId).subscribe(d => this.meusChamados = d);
-    this.equipamentosService.listarPorCliente(userId).subscribe(d => this.meusEquipamentos = d);
+    this.ordensService.listarPorCliente(userId).pipe(takeUntil(this.destroy$)).subscribe(d => this.pedidos = d);
+    this.atualizarMsgCounts();
+    this.chamadosService.listarPorCliente(userId).pipe(takeUntil(this.destroy$)).subscribe(d => {
+      this.meusChamados = d.sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime());
+      this.atualizarMsgCounts();
+    });
+    this.equipamentosService.listarPorCliente(userId).pipe(takeUntil(this.destroy$)).subscribe(d => this.meusEquipamentos = d);
   }
 
   statusClass(s: string): string {
@@ -423,7 +472,7 @@ export class MinhaContaComponent implements OnInit {
 
   carregarChat() {
     if (!this.chatOrdemId) { this.mensagens = []; return; }
-    this.mensagensService.listarPorOrdem(this.chatOrdemId).subscribe(d => {
+    this.mensagensService.listarPorOrdem(this.chatOrdemId).pipe(takeUntil(this.destroy$)).subscribe(d => {
       this.mensagens = d;
       setTimeout(() => {
         const el = document.querySelector('.chat-msgs');
@@ -446,7 +495,7 @@ export class MinhaContaComponent implements OnInit {
       data: new Date().toISOString()
     };
 
-    this.mensagensService.incluir(msg).subscribe({
+    this.mensagensService.incluir(msg).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.chatTexto = '';
         this.carregarChat();
@@ -471,19 +520,90 @@ export class MinhaContaComponent implements OnInit {
       observacoes: ''
     };
 
-    this.chamadosService.incluir(chamado).subscribe({
-      next: () => {
+    this.chamadosService.incluir(chamado).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (criado) => {
         this.showChamadoForm = false;
         this.chamadoForm = { equipamentoId: 0, descricao: '' };
-        this.mostrarToast('Chamado aberto com sucesso!');
-        this.chamadosService.listarPorCliente(user.id).subscribe(d => this.meusChamados = d);
+        this.mostrarToast(`Chamado #${criado.id} aberto com sucesso! A equipe irá analisar em breve.`);
+        this.chamadosService.listarPorCliente(user.id).pipe(takeUntil(this.destroy$)).subscribe(d => this.meusChamados = d);
       },
       error: () => this.mostrarToast('Erro ao abrir chamado.', 'error')
+    });
+  }
+
+  chamadoMsgCount(chamadoId?: number): number {
+    return chamadoId ? (this.msgCountMap[chamadoId] ?? 0) : 0;
+  }
+
+  onReplyKeydown(e: Event) {
+    const ke = e as KeyboardEvent;
+    if (ke.shiftKey) return;
+    ke.preventDefault();
+    this.enviarResposta();
+  }
+
+  abrirConversa(ch: Chamado) {
+    if (this.chamadoAberto?.id === ch.id) {
+      this.chamadoAberto = null;
+      this.conversaMensagens = [];
+      return;
+    }
+    this.chamadoAberto = ch;
+    this.convReplyTexto = '';
+    this.chamadoMsgService.listarPorChamado(ch.id!).pipe(takeUntil(this.destroy$)).subscribe(d => {
+      this.conversaMensagens = d.sort((a, b) => new Date(a.data).getTime() - new Date(b.data).getTime());
+      setTimeout(() => {
+        const el = document.querySelector('.conversa-thread');
+        if (el) el.scrollTop = el.scrollHeight;
+      }, 50);
+    });
+  }
+
+  enviarResposta() {
+    const texto = this.convReplyTexto.trim();
+    if (!texto || !this.chamadoAberto?.id) return;
+    const user = this.auth.getUser();
+    if (!user) return;
+
+    this.sendingReply = true;
+    const msg: ChamadoMensagem = {
+      chamadoId: this.chamadoAberto.id,
+      remetente: 'cliente',
+      remetenteNome: user.nome,
+      texto,
+      data: new Date().toISOString()
+    };
+
+    this.chamadoMsgService.incluir(msg).pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => {
+        this.convReplyTexto = '';
+        this.sendingReply = false;
+        this.chamadoMsgService.listarPorChamado(this.chamadoAberto!.id!).pipe(takeUntil(this.destroy$)).subscribe(d => {
+          this.conversaMensagens = d.sort((a, b) => new Date(a.data).getTime() - new Date(b.data).getTime());
+        });
+        this.atualizarMsgCounts();
+        this.mostrarToast('Resposta enviada com sucesso.');
+      },
+      error: () => { this.sendingReply = false; this.mostrarToast('Erro ao enviar resposta.', 'error'); }
+    });
+  }
+
+  private atualizarMsgCounts() {
+    this.chamadoMsgService.listarTodas().pipe(takeUntil(this.destroy$)).subscribe(todas => {
+      this.msgCountMap = {};
+      for (const m of todas) {
+        if (m.chamadoId) this.msgCountMap[m.chamadoId] = (this.msgCountMap[m.chamadoId] ?? 0) + 1;
+      }
     });
   }
 
   sair() {
     this.auth.logout();
     this.router.navigate(['/']);
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

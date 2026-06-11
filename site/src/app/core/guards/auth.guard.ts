@@ -2,6 +2,7 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
+/** Redireciona para /login se não estiver autenticado */
 export const authGuard = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
@@ -9,6 +10,7 @@ export const authGuard = () => {
   return router.parseUrl('/login');
 };
 
+/** Permite acesso apenas a clientes autenticados */
 export const clienteGuard = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
@@ -17,10 +19,21 @@ export const clienteGuard = () => {
   return router.parseUrl('/login');
 };
 
+/** Permite acesso apenas a funcionários autenticados */
 export const funcionarioGuard = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
-  if (auth.isLoggedIn() && auth.isFuncionario()) return true;
+  if (auth.isLoggedIn() && auth.isFuncionarioOuGerente()) return true;
+  if (auth.isLoggedIn()) return router.parseUrl('/minha-conta');
+  return router.parseUrl('/login');
+};
+
+/** Permite acesso apenas a gerentes */
+export const gerenteGuard = () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+  if (auth.isLoggedIn() && auth.isGerente()) return true;
+  if (auth.isLoggedIn() && auth.isFuncionario()) return router.parseUrl('/area-tecnico');
   if (auth.isLoggedIn()) return router.parseUrl('/minha-conta');
   return router.parseUrl('/login');
 };

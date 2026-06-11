@@ -1,3 +1,4 @@
+/** Funcionário da assistência técnica */
 export interface Funcionario {
   id?: number | string;
   nome: string;
@@ -8,6 +9,7 @@ export interface Funcionario {
   senha?: string;
 }
 
+/** Cliente pessoa física ou jurídica */
 export interface Cliente {
   id?: number | string;
   nome: string;
@@ -20,6 +22,7 @@ export interface Cliente {
   ativo: boolean;
 }
 
+/** Equipamento vinculado a um cliente */
 export interface Equipamento {
   id?: number;
   clienteId: number;
@@ -31,12 +34,14 @@ export interface Equipamento {
   observacoes?: string;
 }
 
+/** Registro de mudança de status na OS */
 export interface HistoricoOS {
   status: string;
   data: string;
   responsavel: string;
 }
 
+/** Ordem de Serviço — núcleo do sistema */
 export interface OrdemServico {
   id?: number;
   tecnicoId: number;
@@ -59,6 +64,8 @@ export interface OrdemServico {
   diagnosticos?: string;
   observacoes?: string;
   historico?: HistoricoOS[];
+  garantiaDias?: number;
+  garantiaFim?: string;
 }
 
 export interface EstoqueItem {
@@ -92,11 +99,12 @@ export interface Chamado {
   observacoes?: string;
 }
 
-export interface WifiConfig {
+export interface ChamadoMensagem {
   id?: number;
-  ssid: string;
-  senha: string;
-  seguranca: 'WPA2' | 'WPA3' | 'Aberta';
-  banda: '2.4GHz' | '5GHz' | 'Dupla';
-  ativo: boolean;
+  chamadoId: number;
+  remetente: 'cliente' | 'tecnico' | 'gerente';
+  remetenteNome: string;
+  texto: string;
+  data: string;
 }
+

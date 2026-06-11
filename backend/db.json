@@ -15,7 +15,8 @@
       "cargo": "Atendente",
       "telefone": "11988888888",
       "email": "maria@email.com",
-      "salario": 2800
+      "salario": 2800,
+      "senha": "1234"
     },
     {
       "nome": "Fulano",
@@ -23,7 +24,8 @@
       "telefone": "11222333444",
       "email": "fulano@email.com",
       "salario": 2500,
-      "id": 3
+      "id": 3,
+      "senha": "1234"
     },
     {
       "nome": "Beltrano",
@@ -31,7 +33,17 @@
       "telefone": "1122232233223",
       "email": "beltrano@email.com",
       "salario": 3200,
-      "id": 4
+      "id": 4,
+      "senha": "1234"
+    },
+    {
+      "nome": "Admin",
+      "cargo": "Gerente",
+      "telefone": "11900000000",
+      "email": "admin@email.com",
+      "salario": 8000,
+      "id": 5,
+      "senha": "1234"
     }
   ],
   "clientes": [
@@ -67,6 +79,28 @@
       "senha": "1234",
       "ativo": true,
       "id": 3
+    },
+    {
+      "nome": "Gabriel Quaresma da SIlva",
+      "email": "gabriel@email.com",
+      "telefone": "119999999",
+      "cpfCnpj": "40243861826",
+      "endereco": "Rua Ópera 240",
+      "tipo": "PF",
+      "senha": "1234",
+      "ativo": true,
+      "id": 4
+    },
+    {
+      "nome": "Gabriel",
+      "email": "hehe@email.com",
+      "telefone": "11999999999",
+      "cpfCnpj": "123456789-10",
+      "endereco": "casa",
+      "tipo": "PJ",
+      "senha": "1234",
+      "ativo": true,
+      "id": 5
     }
   ],
   "equipamentos": [
@@ -122,13 +156,15 @@
       "aparelho": "iPhone 12",
       "tipoAparelho": "Smartphone",
       "defeito": "Tela quebrada - display não acende",
-      "status": "Orçamento Aprovado",
+      "status": "Pronto",
       "prioridade": "Alta",
       "dataEntrada": "2026-05-20",
       "tempoEstimado": 3,
       "valorServico": 120,
       "valorPecas": 179,
       "valorTotal": 299,
+      "garantiaDias": 90,
+      "garantiaFim": "2026-08-20",
       "diagnosticos": "Display danificado, touch não responde. Necessário troca completa do conjunto tela.",
       "observacoes": "Aguardando chegar a tela",
       "historico": [
@@ -145,6 +181,11 @@
         {
           "status": "Orçamento Aprovado",
           "data": "2026-05-21 10:00",
+          "responsavel": "João Silva"
+        },
+        {
+          "status": "Pronto",
+          "data": "2026-05-23 16:00",
           "responsavel": "João Silva"
         }
       ],
@@ -193,13 +234,15 @@
       "aparelho": "Samsung Galaxy S23",
       "tipoAparelho": "Smartphone",
       "defeito": "Bateria viciada - não carrega acima de 15%",
-      "status": "Aguardando Peças",
+      "status": "Orçamento Aprovado",
       "prioridade": "Normal",
       "dataEntrada": "2026-05-18",
       "tempoEstimado": 2,
       "valorServico": 80,
       "valorPecas": 149,
       "valorTotal": 229,
+      "garantiaDias": 90,
+      "garantiaFim": "2026-08-18",
       "diagnosticos": "Bateria com capacidade reduzida para 12%. Substituição necessária.",
       "observacoes": "Aguardando chegada da bateria",
       "historico": [
@@ -338,6 +381,15 @@
       "status": "Aberto",
       "data": "2026-05-24",
       "observacoes": ""
+    },
+    {
+      "clienteId": 4,
+      "clienteNome": "Gabriel Quaresma da SIlva",
+      "descricao": "me ajuda pai",
+      "status": "Aberto",
+      "data": "2026-06-06",
+      "observacoes": "",
+      "id": 2
     }
   ]
 }

@@ -37,9 +37,9 @@ import { AuthService } from '../../core/services/auth.service';
     .header {
       position: fixed; top: 0; left: 0; right: 0;
       height: 72px;
-      background: rgba(19,19,26,.85);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background: rgba(11,17,32,.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border);
       display: flex; align-items: center;
       z-index: 1000;

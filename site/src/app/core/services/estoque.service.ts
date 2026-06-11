@@ -2,10 +2,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { EstoqueItem } from '../types/types';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class EstoqueService {
-  private readonly API = 'http://localhost:3000/estoque';
+  private readonly API = `${environment.apiUrl}/estoque`;
   constructor(private http: HttpClient) {}
 
   listar(): Observable<EstoqueItem[]> {

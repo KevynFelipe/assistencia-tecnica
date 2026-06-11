@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
 import { OrdensService } from '../../core/services/ordens.service';
 import { ClientesService } from '../../core/services/clientes.service';
 import { EquipamentosService } from '../../core/services/equipamentos.service';
@@ -246,7 +247,7 @@ import { EquipamentosService } from '../../core/services/equipamentos.service';
 
     .hero {
       padding: 120px 24px 80px;
-      background: linear-gradient(135deg, var(--bg) 0%, rgba(10,10,18,.95) 100%);
+      background: linear-gradient(135deg, var(--bg) 0%, rgba(11,17,32,.95) 100%);
       overflow: hidden;
     }
     .hero-inner { max-width: 1120px; margin: 0 auto; }
@@ -263,14 +264,14 @@ import { EquipamentosService } from '../../core/services/equipamentos.service';
       display: inline-flex; align-items: center; gap: 10px;
       padding: 16px 32px; font-size: 1rem; font-weight: 600;
       border-radius: 12px; text-decoration: none; cursor: pointer;
-      background: #22c55e; color: #fff; border: none;
+      background: var(--primary); color: #fff; border: none;
       transition: all .25s;
     }
-    .btn-cta:hover { background: #16a34a; transform: translateY(-2px); }
+    .btn-cta:hover { background: var(--primary-hover); transform: translateY(-2px); }
 
     .hero-visual { position: relative; }
     .hero-box {
-      background: linear-gradient(135deg, var(--primary), #1d4ed8);
+      background: linear-gradient(135deg, var(--primary), #0e7490);
       border-radius: 20px; padding: 40px;
       transform: rotate(1deg); transition: transform .4s;
     }
@@ -289,7 +290,7 @@ import { EquipamentosService } from '../../core/services/equipamentos.service';
     .section-inner { max-width: 1120px; margin: 0 auto; }
     .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; text-align: center; }
     .stat-item { padding: 16px; border-radius: 12px; border: 1px solid var(--border); transition: all .3s; }
-    .stat-item:hover { border-color: rgba(59,130,246,.2); transform: translateY(-2px); }
+    .stat-item:hover { border-color: rgba(6,182,212,.2); transform: translateY(-2px); }
     .stat-num { font-size: 1.4rem; font-weight: 800; color: var(--primary); }
     .stat-label { font-size: .8rem; color: var(--text-muted); }
     @media (max-width: 640px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -309,10 +310,10 @@ import { EquipamentosService } from '../../core/services/equipamentos.service';
       border-radius: 14px; padding: 24px;
       transition: all .25s;
     }
-    .service-card:hover { border-color: rgba(59,130,246,.25); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.15); }
+    .service-card:hover { border-color: rgba(6,182,212,.25); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.15); }
     .service-icon {
       width: 52px; height: 52px; border-radius: 12px;
-      background: linear-gradient(135deg, var(--primary), #1d4ed8);
+      background: linear-gradient(135deg, var(--primary), #0e7490);
       display: flex; align-items: center; justify-content: center;
       margin-bottom: 16px;
     }
@@ -321,7 +322,7 @@ import { EquipamentosService } from '../../core/services/equipamentos.service';
 
     .services-banner {
       margin-top: 36px;
-      background: linear-gradient(135deg, var(--primary), #1d4ed8);
+      background: linear-gradient(135deg, var(--primary), #0e7490);
       border-radius: 16px; padding: 32px 40px; text-align: center; color: #fff;
     }
     .services-banner h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 8px; }
@@ -330,7 +331,7 @@ import { EquipamentosService } from '../../core/services/equipamentos.service';
 
     .features {
       padding: 96px 24px;
-      background: linear-gradient(135deg, var(--primary), #1d4ed8);
+      background: linear-gradient(135deg, var(--primary), #0e7490);
       color: #fff;
     }
     .features .section-header h2 { color: #fff; }
@@ -353,7 +354,7 @@ import { EquipamentosService } from '../../core/services/equipamentos.service';
       border-radius: 14px; padding: 28px; transition: all .25s;
       display: flex; flex-direction: column;
     }
-    .review-card:hover { border-color: rgba(59,130,246,.2); transform: translateY(-2px); }
+    .review-card:hover { border-color: rgba(6,182,212,.2); transform: translateY(-2px); }
     .review-stars { display: flex; gap: 2px; margin-bottom: 16px; }
     .review-text { font-size: .88rem; color: var(--text); line-height: 1.7; flex: 1; margin-bottom: 20px; font-style: italic; }
     .review-author { display: flex; align-items: center; gap: 12px; }
@@ -391,7 +392,8 @@ import { EquipamentosService } from '../../core/services/equipamentos.service';
     .footer-bottom { border-top: 1px solid var(--border); padding-top: 24px; text-align: center; font-size: .82rem; color: var(--text-muted); }
   `]
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   stats = {
     totalOS: 0,
     clientesAtivos: 0,
@@ -410,17 +412,22 @@ export class HomeComponent implements OnInit {
   }
 
   private carregarStats() {
-    this.ordensService.listar().subscribe(ordens => {
+    this.ordensService.listar().pipe(takeUntil(this.destroy$)).subscribe(ordens => {
       this.stats.totalOS = ordens.length;
       this.stats.receita = ordens
         .filter(o => o.status === 'Entregue' && o.valorTotal)
         .reduce((acc, o) => acc + (o.valorTotal ?? 0), 0);
     });
-    this.clientesService.listar().subscribe(c => {
+    this.clientesService.listar().pipe(takeUntil(this.destroy$)).subscribe(c => {
       this.stats.clientesAtivos = c.filter(c => c.ativo).length;
     });
-    this.equipamentosService.listar().subscribe(e => {
+    this.equipamentosService.listar().pipe(takeUntil(this.destroy$)).subscribe(e => {
       this.stats.equipamentos = e.length;
     });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

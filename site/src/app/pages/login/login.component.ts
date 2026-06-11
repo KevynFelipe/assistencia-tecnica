@@ -73,14 +73,29 @@ import { AuthService } from '../../core/services/auth.service';
 
           <div class="login-footer">
             <a routerLink="/">← Voltar ao site</a>
+            @if (papel === 'cliente') {
+              <span class="sep">·</span>
+              <a routerLink="/cadastro">Cadastre-se</a>
+            }
           </div>
 
-          @if (papel === 'cliente') {
-            <div class="login-info">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-              Ao entrar, você poderá acompanhar o status dos seus pedidos, conversar com nossos técnicos e abrir chamados de suporte.
-            </div>
-          }
+            @if (papel === 'cliente') {
+              <div class="login-info">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                Ao entrar, você poderá acompanhar o status dos seus pedidos, conversar com nossos técnicos e abrir chamados de suporte.
+              </div>
+            }
+
+            @if (attemptsRestantes < 5 && attemptsRestantes > 0) {
+              <div class="login-info login-info-warn">
+                Tentativas restantes: {{ attemptsRestantes }}
+              </div>
+            }
+            @if (attemptsRestantes === 0) {
+              <div class="login-erro">
+                Muitas tentativas. Aguarde 1 minuto.
+              </div>
+            }
         </div>
       </div>
     </div>
@@ -89,14 +104,14 @@ import { AuthService } from '../../core/services/auth.service';
     .login-page {
       min-height: 100vh; display: flex; align-items: center; justify-content: center;
       position: relative; overflow: hidden;
-      background: #08080e;
+      background: var(--bg);
     }
     .login-bg {
       position: fixed; inset: 0;
       background:
-        radial-gradient(ellipse at 20% 50%, rgba(59,130,246,.08) 0%, transparent 50%),
-        radial-gradient(ellipse at 80% 20%, rgba(99,102,241,.06) 0%, transparent 50%),
-        radial-gradient(ellipse at 50% 80%, rgba(139,92,246,.04) 0%, transparent 50%);
+        radial-gradient(ellipse at 20% 50%, rgba(6,182,212,.1) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(14,116,144,.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 80%, rgba(8,145,178,.06) 0%, transparent 50%);
       pointer-events: none;
     }
     .login-container {
@@ -104,7 +119,7 @@ import { AuthService } from '../../core/services/auth.service';
       width: 100%; max-width: 440px; padding: 24px;
     }
     .login-card {
-      background: rgba(22,22,34,.85);
+      background: rgba(17,24,39,.9);
       backdrop-filter: blur(24px);
       -webkit-backdrop-filter: blur(24px);
       border: 1px solid rgba(255,255,255,.06);
@@ -129,7 +144,7 @@ import { AuthService } from '../../core/services/auth.service';
       cursor: pointer; transition: all .2s;
     }
     .papel-btn:hover { color: var(--text); background: rgba(255,255,255,.04); }
-    .papel-btn.active { background: rgba(59,130,246,.15); color: var(--primary); }
+    .papel-btn.active { background: var(--primary-light); color: var(--primary); }
     .papel-btn svg { flex-shrink: 0; }
 
     .login-erro {
@@ -148,7 +163,7 @@ import { AuthService } from '../../core/services/auth.service';
       border-radius: 10px; padding: 0 14px;
       transition: all .2s;
     }
-    .field-input:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59,130,246,.1); background: rgba(59,130,246,.04); }
+    .field-input:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(6,182,212,.1); background: rgba(6,182,212,.04); }
     .field-input svg { color: var(--text-muted); flex-shrink: 0; }
     .field-input input {
       flex: 1; background: transparent; border: none; outline: none;
@@ -159,12 +174,12 @@ import { AuthService } from '../../core/services/auth.service';
     .btn-login {
       display: inline-flex; align-items: center; justify-content: center; gap: 10px;
       width: 100%; padding: 15px 24px; margin-top: 4px;
-      background: linear-gradient(135deg, var(--primary), #6366f1);
+      background: linear-gradient(135deg, var(--primary), #0e7490);
       color: #fff; border: none; border-radius: 10px;
       font-size: 1rem; font-weight: 600; cursor: pointer;
-      transition: all .25s; box-shadow: 0 4px 20px rgba(59,130,246,.25);
+      transition: all .25s;       box-shadow: 0 4px 20px rgba(6,182,212,.25);
     }
-    .btn-login:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(59,130,246,.35); }
+    .btn-login:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(6,182,212,.35); }
     .btn-login:disabled { opacity: .6; cursor: not-allowed; transform: none; box-shadow: none; }
 
     .spinner {
@@ -178,10 +193,12 @@ import { AuthService } from '../../core/services/auth.service';
     .login-footer a { color: var(--text-muted); font-size: .85rem; text-decoration: none; transition: color .2s; }
     .login-footer a:hover { color: var(--primary); }
 
+    .login-info-warn { background: rgba(249,115,22,.08) !important; border-color: rgba(249,115,22,.15) !important; color: #fb923c !important; }
+    .login-info-warn svg { color: #fb923c !important; }
     .login-info {
       display: flex; align-items: flex-start; gap: 8px;
       margin-top: 20px; padding: 12px 14px;
-      background: rgba(59,130,246,.06); border: 1px solid rgba(59,130,246,.1);
+      background: rgba(6,182,212,.06); border: 1px solid rgba(6,182,212,.1);
       border-radius: 10px; font-size: .78rem; color: var(--text-muted); line-height: 1.5;
     }
     .login-info svg { flex-shrink: 0; margin-top: 2px; color: var(--primary); }
@@ -193,11 +210,14 @@ export class LoginComponent {
   senha = '';
   erro = '';
   loading = false;
+  attemptsRestantes = 5;
 
   constructor(
-    private auth: AuthService,
+    public auth: AuthService,
     private router: Router
-  ) {}
+  ) {
+    this.attemptsRestantes = this.auth.getAttemptsRestantes();
+  }
 
   entrar() {
     if (!this.email || !this.senha) {
@@ -215,9 +235,11 @@ export class LoginComponent {
       next: user => {
         this.loading = false;
         if (user) {
-          this.router.navigate([this.papel === 'funcionario' ? '/area-tecnico' : '/minha-conta']);
+          const destino = user.papel === 'gerente' ? '/area-gerente' : user.papel === 'funcionario' ? '/area-tecnico' : '/minha-conta';
+          this.router.navigate([destino]);
         } else {
           this.erro = 'E-mail ou senha incorretos.';
+          this.attemptsRestantes = this.auth.getAttemptsRestantes();
         }
       },
       error: () => {

@@ -2,10 +2,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Mensagem } from '../types/types';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class MensagensService {
-  private readonly API = 'http://localhost:3000/mensagens';
+  private readonly API = `${environment.apiUrl}/mensagens`;
   constructor(private http: HttpClient) {}
 
   listar(): Observable<Mensagem[]> {

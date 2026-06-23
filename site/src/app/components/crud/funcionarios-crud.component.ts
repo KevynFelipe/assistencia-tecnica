@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
@@ -46,19 +46,21 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
         <button class="scope-btn" [class.active]="campo === 'telefone'" (click)="campo='telefone'">Telefone</button>
       </div>
       <div class="consult-row">
-        <input [(ngModel)]="valor" [placeholder]="'Buscar por ' + campo" class="inp"/>
-        <button class="btn-primary" [disabled]="searchLoading" (click)="consultar()">
-          @if (searchLoading) { Buscando... } @else { Buscar }
-        </button>
+        <input [(ngModel)]="valor" (input)="consultar()" [placeholder]="'Buscar por ' + campo" class="inp"/>
       </div>
-      @if (resultado) {
+      @if (resultados.length > 0) {
         <div class="consult-result">
-          <p><strong>ID:</strong> {{ resultado.id }}</p>
-          <p><strong>Nome:</strong> {{ resultado.nome }}</p>
-          <p><strong>Cargo:</strong> {{ resultado.cargo }}</p>
-          <p><strong>Telefone:</strong> {{ resultado.telefone }}</p>
-          <p><strong>Email:</strong> {{ resultado.email }}</p>
-          <p><strong>Salário:</strong> {{ resultado.salario ? 'R$ ' + resultado.salario.toFixed(2) : '-' }}</p>
+          <p class="consult-count">{{ resultados.length }} resultado(s)</p>
+          @for (r of resultados; track r.id) {
+            <div class="consult-item">
+              <p><strong>ID:</strong> {{ r.id }}</p>
+              <p><strong>Nome:</strong> {{ r.nome }}</p>
+              <p><strong>Cargo:</strong> {{ r.cargo }}</p>
+              <p><strong>Telefone:</strong> {{ r.telefone }}</p>
+              <p><strong>Email:</strong> {{ r.email }}</p>
+              <p><strong>Salário:</strong> {{ r.salario ? 'R$ ' + r.salario.toFixed(2) : '-' }}</p>
+            </div>
+          }
         </div>
       }
       @if (erro) {
@@ -144,6 +146,11 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
       border: 1px solid var(--border);
     }
     .consult-result p { margin-bottom: 6px; font-size: .9rem; }
+    .consult-count { font-size: .8rem !important; color: var(--text-muted); margin-bottom: 12px !important; }
+    .consult-item {
+      padding: 12px 0; border-top: 1px solid var(--border);
+    }
+    .consult-item:first-child { border-top: none; }
     .table-wrapper {
       background: var(--surface); border: 1px solid var(--border);
       border-radius: 12px; overflow-x: auto;
@@ -192,7 +199,7 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
   `]
 })
 export class FuncionariosCrudComponent implements OnInit {
-  constructor(private service: FuncionariosService) {}
+  constructor(private service: FuncionariosService, private cdr: ChangeDetectorRef) {}
 
   itens: Funcionario[] = [];
   showForm = false;
@@ -200,10 +207,9 @@ export class FuncionariosCrudComponent implements OnInit {
   form: Partial<Funcionario> = {};
   loading = false;
   listLoading = false;
-  searchLoading = false;
   campo = 'id';
   valor = '';
-  resultado: Funcionario | null = null;
+  resultados: Funcionario[] = [];
   erro = '';
   sucesso = '';
   erroGeral = '';
@@ -229,8 +235,8 @@ export class FuncionariosCrudComponent implements OnInit {
   listar() {
     this.listLoading = true;
     this.service.listar().pipe(takeUntil(this.destroy$)).subscribe({
-      next: d => { this.itens = d; this.listLoading = false; },
-      error: () => { this.erroGeral = 'Erro ao carregar.'; this.listLoading = false; }
+      next: d => { this.itens = d; this.listLoading = false; this.cdr.detectChanges(); },
+      error: () => { this.erroGeral = 'Erro ao carregar.'; this.listLoading = false; this.cdr.detectChanges(); }
     });
   }
 
@@ -273,10 +279,11 @@ export class FuncionariosCrudComponent implements OnInit {
         this.editId = null;
         this.form = {};
         this.sucesso = editando ? 'Funcionário atualizado.' : 'Funcionário cadastrado.';
-        setTimeout(() => this.sucesso = '', 3000);
+        this.cdr.detectChanges();
+        setTimeout(() => { this.sucesso = ''; this.cdr.detectChanges(); }, 3000);
         this.listar();
       },
-      error: () => { this.erroGeral = 'Erro ao salvar.'; this.loading = false; }
+      error: () => { this.erroGeral = 'Erro ao salvar.'; this.loading = false; this.cdr.detectChanges(); }
     });
   }
 
@@ -292,29 +299,24 @@ export class FuncionariosCrudComponent implements OnInit {
   confirmOk() {
     const f = this.confirm.item; if (!f?.id) return; this.confirm.loading = true;
     this.service.excluir(f.id).pipe(takeUntil(this.destroy$)).subscribe({
-      next: () => { this.confirm = { show: false, title: '', text: '', loading: false, item: null }; this.sucesso = 'Funcionário excluído.'; setTimeout(() => this.sucesso = '', 3000); this.listar(); },
-      error: () => { this.confirm.show = false; this.erroGeral = 'Erro ao excluir.'; }
+      next: () => { this.confirm = { show: false, title: '', text: '', loading: false, item: null }; this.sucesso = 'Funcionário excluído.'; this.cdr.detectChanges(); setTimeout(() => { this.sucesso = ''; this.cdr.detectChanges(); }, 3000); this.listar(); },
+      error: () => { this.confirm.show = false; this.erroGeral = 'Erro ao excluir.'; this.cdr.detectChanges(); }
     });
   }
   confirmCancel() { this.confirm = { show: false, title: '', text: '', loading: false, item: null }; }
 
   consultar() {
-    this.resultado = null;
     this.erro = '';
-    if (!this.valor) { this.erro = 'Informe um valor.'; return; }
+    this.resultados = [];
+    if (!this.valor) { this.cdr.detectChanges(); return; }
+    const val = this.valor.toLowerCase();
     if (this.campo === 'id') {
-      const id = Number(this.valor);
-      if (isNaN(id)) { this.erro = 'ID deve ser número.'; return; }
-      this.searchLoading = true;
-      this.service.buscarPorId(id).pipe(takeUntil(this.destroy$)).subscribe({
-        next: d => { this.resultado = d; this.searchLoading = false; },
-        error: () => { this.erro = 'Não encontrado.'; this.searchLoading = false; }
-      });
+      this.resultados = this.itens.filter(f => String(f.id).includes(val));
+      if (this.resultados.length === 0) this.erro = 'Não encontrado.';
     } else {
-      const val = this.valor.toLowerCase();
-      const found = this.itens.find(f => String(f[this.campo as keyof Funcionario] ?? '').toLowerCase().includes(val));
-      this.resultado = found ?? null;
-      if (!found) this.erro = 'Não encontrado.';
+      this.resultados = this.itens.filter(f => String(f[this.campo as keyof Funcionario] ?? '').toLowerCase().includes(val));
+      if (this.resultados.length === 0) this.erro = 'Não encontrado.';
     }
+    this.cdr.detectChanges();
   }
 }

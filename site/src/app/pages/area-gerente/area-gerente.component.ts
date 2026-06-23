@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -365,7 +365,8 @@ export class AreaGerenteComponent implements OnInit, OnDestroy {
     private funcionariosService: FuncionariosService,
     private chamadosService: ChamadosService,
     private router: Router,
-    public auth: AuthService
+    public auth: AuthService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -390,8 +391,9 @@ export class AreaGerenteComponent implements OnInit, OnDestroy {
         this.calcularKPIs();
         this.filtrarFaturamento();
         this.loading = false;
+        this.cdr.detectChanges();
       },
-      error: () => this.loading = false
+      error: () => { this.loading = false; this.cdr.detectChanges(); }
     });
   }
 

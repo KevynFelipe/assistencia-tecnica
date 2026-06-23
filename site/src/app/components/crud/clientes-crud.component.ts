@@ -46,19 +46,21 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
         <button class="scope-btn" [class.active]="campo === 'email'" (click)="campo='email'">Email</button>
       </div>
       <div class="consult-row">
-        <input [(ngModel)]="valor" [placeholder]="'Buscar por ' + campo" class="inp"/>
-        <button class="btn-primary" [disabled]="searchLoading" (click)="consultar()">
-          @if (searchLoading) { Buscando... } @else { Buscar }
-        </button>
+        <input [(ngModel)]="valor" (input)="consultar()" [placeholder]="'Buscar por ' + campo" class="inp"/>
       </div>
-      @if (resultado) {
+      @if (resultados.length > 0) {
         <div class="consult-result">
-          <p><strong>ID:</strong> {{ resultado.id }}</p>
-          <p><strong>Nome:</strong> {{ resultado.nome }}</p>
-          <p><strong>{{ resultado.tipo === 'PJ' ? 'CNPJ' : 'CPF' }}:</strong> {{ resultado.cpfCnpj }}</p>
-          <p><strong>Telefone:</strong> {{ resultado.telefone }}</p>
-          <p><strong>Email:</strong> {{ resultado.email }}</p>
-          <p><strong>Endereço:</strong> {{ resultado.endereco }}</p>
+          <p class="consult-count">{{ resultados.length }} resultado(s)</p>
+          @for (r of resultados; track r.id) {
+            <div class="consult-item">
+              <p><strong>ID:</strong> {{ r.id }}</p>
+              <p><strong>Nome:</strong> {{ r.nome }}</p>
+              <p><strong>{{ r.tipo === 'PJ' ? 'CNPJ' : 'CPF' }}:</strong> {{ r.cpfCnpj }}</p>
+              <p><strong>Telefone:</strong> {{ r.telefone }}</p>
+              <p><strong>Email:</strong> {{ r.email }}</p>
+              <p><strong>Endereço:</strong> {{ r.endereco }}</p>
+            </div>
+          }
         </div>
       }
       @if (erro) {
@@ -144,6 +146,11 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
       border: 1px solid var(--border);
     }
     .consult-result p { margin-bottom: 6px; font-size: .9rem; }
+    .consult-count { font-size: .8rem !important; color: var(--text-muted); margin-bottom: 12px !important; }
+    .consult-item {
+      padding: 12px 0; border-top: 1px solid var(--border);
+    }
+    .consult-item:first-child { border-top: none; }
     .table-wrapper {
       background: var(--surface); border: 1px solid var(--border);
       border-radius: 12px; overflow-x: auto;
@@ -200,10 +207,9 @@ export class ClientesCrudComponent implements OnInit, OnDestroy {
   form: Partial<Cliente> = { tipo: 'PF', ativo: true };
   loading = false;
   listLoading = false;
-  searchLoading = false;
   campo = 'id';
   valor = '';
-  resultado: Cliente | null = null;
+  resultados: Cliente[] = [];
   erro = '';
   sucesso = '';
   erroGeral = '';
@@ -334,23 +340,17 @@ export class ClientesCrudComponent implements OnInit, OnDestroy {
   confirmCancel() { this.confirm = { show: false, title: '', text: '', loading: false, item: null }; }
 
   consultar() {
-    this.resultado = null;
     this.erro = '';
-    if (!this.valor) { this.erro = 'Informe um valor.'; return; }
+    this.resultados = [];
+    if (!this.valor) { this.cdr.detectChanges(); return; }
+    const val = this.valor.toLowerCase();
     if (this.campo === 'id') {
-      const id = Number(this.valor);
-      if (isNaN(id)) { this.erro = 'ID deve ser número.'; return; }
-      this.searchLoading = true;
-      this.service.buscarPorId(id).pipe(takeUntil(this.destroy$)).subscribe({
-        next: d => { this.resultado = d; this.searchLoading = false; this.cdr.detectChanges(); },
-        error: () => { this.erro = 'Não encontrado.'; this.searchLoading = false; this.cdr.detectChanges(); }
-      });
+      this.resultados = this.ativos.filter(c => String(c.id).includes(val));
+      if (this.resultados.length === 0) this.erro = 'Não encontrado.';
     } else {
-      const val = this.valor.toLowerCase();
-      const found = this.ativos.find(c => String(c[this.campo as keyof Cliente] ?? '').toLowerCase().includes(val));
-      this.resultado = found ?? null;
-      if (!found) this.erro = 'Não encontrado.';
-      this.cdr.detectChanges();
+      this.resultados = this.ativos.filter(c => String(c[this.campo as keyof Cliente] ?? '').toLowerCase().includes(val));
+      if (this.resultados.length === 0) this.erro = 'Não encontrado.';
     }
+    this.cdr.detectChanges();
   }
 }

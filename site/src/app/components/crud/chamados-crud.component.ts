@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
@@ -48,7 +48,7 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
       <div class="consult-card">
         <h3>Chamados</h3>
         <div class="consult-row">
-          <input [(ngModel)]="valor" placeholder="Buscar chamado..." class="inp"/>
+          <input [(ngModel)]="valor" (input)="aplicarFiltros()" placeholder="Buscar chamado..." class="inp"/>
         </div>
       </div>
 
@@ -187,7 +187,8 @@ export class ChamadosCrudComponent implements OnDestroy, OnInit {
   constructor(
     private service: ChamadosService,
     private msgService: ChamadoMensagensService,
-    public auth: AuthService
+    public auth: AuthService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -211,9 +212,11 @@ export class ChamadosCrudComponent implements OnDestroy, OnInit {
         this.chamados = data.sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime());
         this.aplicarFiltros();
         this.listLoading = false;
+        this.cdr.detectChanges();
       }, () => {
         this.erroGeral = 'Erro ao carregar chamados.';
         this.listLoading = false;
+        this.cdr.detectChanges();
       });
   }
 
@@ -223,6 +226,7 @@ export class ChamadosCrudComponent implements OnDestroy, OnInit {
       base = base.filter(ch => Object.values(ch).some(v => String(v).toLowerCase().includes(this.valor.toLowerCase())));
     }
     this.filtrados = base;
+    this.cdr.detectChanges();
   }
 
   carregarMensagens(chamadoId: number): void {
@@ -230,12 +234,14 @@ export class ChamadosCrudComponent implements OnDestroy, OnInit {
       .pipe(takeUntil(this.destroy$))
       .subscribe((msgs: ChamadoMensagem[]) => {
         this.mensagens = msgs.sort((a, b) => new Date(a.data).getTime() - new Date(b.data).getTime());
+        this.cdr.detectChanges();
         setTimeout(() => {
           const el = document.querySelector('.conversa-thread');
           if (el) el.scrollTop = el.scrollHeight;
         }, 50);
       }, () => {
         this.erro = 'Erro ao carregar mensagens.';
+        this.cdr.detectChanges();
       });
   }
 
@@ -276,11 +282,13 @@ export class ChamadosCrudComponent implements OnDestroy, OnInit {
       this.loading = false;
       this.cancelar();
       this.sucesso = 'Chamado salvo.';
-      setTimeout(() => this.sucesso = '', 3000);
+      this.cdr.detectChanges();
+      setTimeout(() => { this.sucesso = ''; this.cdr.detectChanges(); }, 3000);
       this.listar();
     }, () => {
       this.loading = false;
       this.erroGeral = 'Erro ao salvar.';
+      this.cdr.detectChanges();
     });
   }
 
@@ -315,11 +323,13 @@ export class ChamadosCrudComponent implements OnDestroy, OnInit {
       .subscribe(() => {
         this.confirm = { show: false, title: '', text: '', loading: false, item: null };
         this.sucesso = 'Chamado excluído.';
-        setTimeout(() => this.sucesso = '', 3000);
+        this.cdr.detectChanges();
+        setTimeout(() => { this.sucesso = ''; this.cdr.detectChanges(); }, 3000);
         this.listar();
       }, () => {
         this.confirm.show = false;
         this.erroGeral = 'Erro ao excluir chamado.';
+        this.cdr.detectChanges();
       });
   }
 
@@ -352,11 +362,13 @@ export class ChamadosCrudComponent implements OnDestroy, OnInit {
         this.sendingReply = false;
         this.carregarMensagens(this.editando!.id!);
         this.sucesso = 'Resposta enviada.';
-        setTimeout(() => this.sucesso = '', 3000);
+        this.cdr.detectChanges();
+        setTimeout(() => { this.sucesso = ''; this.cdr.detectChanges(); }, 3000);
       },
       error: () => {
         this.erro = 'Erro ao enviar resposta.';
         this.sendingReply = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -375,12 +387,14 @@ export class ChamadosCrudComponent implements OnDestroy, OnInit {
       next: () => {
         this.saving = false;
         this.sucesso = `Chamado #${payload.id} atualizado para "${payload.status}".`;
-        setTimeout(() => this.sucesso = '', 3000);
+        this.cdr.detectChanges();
+        setTimeout(() => { this.sucesso = ''; this.cdr.detectChanges(); }, 3000);
         this.listar();
       },
       error: () => {
         this.saving = false;
         this.erro = 'Erro ao salvar chamado.';
+        this.cdr.detectChanges();
       }
     });
   }

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
@@ -52,19 +52,21 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
         <button class="scope-btn" [class.active]="campo === 'clienteNome'" (click)="campo='clienteNome'">Cliente</button>
       </div>
       <div class="consult-row">
-        <input [(ngModel)]="valor" [placeholder]="'Buscar por ' + campo" class="inp"/>
-        <button class="btn-primary" [disabled]="searchLoading" (click)="consultar()">
-          @if (searchLoading) { Buscando... } @else { Buscar }
-        </button>
+        <input [(ngModel)]="valor" (input)="consultar()" [placeholder]="'Buscar por ' + campo" class="inp"/>
       </div>
-      @if (resultado) {
+      @if (resultados.length > 0) {
         <div class="consult-result">
-          <p><strong>ID:</strong> {{ resultado.id }}</p>
-          <p><strong>Cliente:</strong> {{ resultado.clienteNome }}</p>
-          <p><strong>Marca/Modelo:</strong> {{ resultado.marca }} {{ resultado.modelo }}</p>
-          <p><strong>Serial:</strong> {{ resultado.serial || '-' }}</p>
-          <p><strong>IMEI:</strong> {{ resultado.imei || '-' }}</p>
-          <p><strong>Obs:</strong> {{ resultado.observacoes || '-' }}</p>
+          <p class="consult-count">{{ resultados.length }} resultado(s)</p>
+          @for (r of resultados; track r.id) {
+            <div class="consult-item">
+              <p><strong>ID:</strong> {{ r.id }}</p>
+              <p><strong>Cliente:</strong> {{ r.clienteNome }}</p>
+              <p><strong>Marca/Modelo:</strong> {{ r.marca }} {{ r.modelo }}</p>
+              <p><strong>Serial:</strong> {{ r.serial || '-' }}</p>
+              <p><strong>IMEI:</strong> {{ r.imei || '-' }}</p>
+              <p><strong>Obs:</strong> {{ r.observacoes || '-' }}</p>
+            </div>
+          }
         </div>
       }
       @if (erro) {
@@ -150,6 +152,11 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
       border: 1px solid var(--border);
     }
     .consult-result p { margin-bottom: 6px; font-size: .9rem; }
+    .consult-count { font-size: .8rem !important; color: var(--text-muted); margin-bottom: 12px !important; }
+    .consult-item {
+      padding: 12px 0; border-top: 1px solid var(--border);
+    }
+    .consult-item:first-child { border-top: none; }
     .table-wrapper {
       background: var(--surface); border: 1px solid var(--border);
       border-radius: 12px; overflow-x: auto;
@@ -203,7 +210,8 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
 export class EquipamentosCrudComponent implements OnInit {
   constructor(
     private service: EquipamentosService,
-    private clientesService: ClientesService
+    private clientesService: ClientesService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   itens: Equipamento[] = [];
@@ -213,10 +221,9 @@ export class EquipamentosCrudComponent implements OnInit {
   form: Partial<Equipamento> = {};
   loading = false;
   listLoading = false;
-  searchLoading = false;
   campo = 'id';
   valor = '';
-  resultado: Equipamento | null = null;
+  resultados: Equipamento[] = [];
   erro = '';
   sucesso = '';
   erroGeral = '';
@@ -236,8 +243,8 @@ export class EquipamentosCrudComponent implements OnInit {
   listar() {
     this.listLoading = true;
     this.service.listar().pipe(takeUntil(this.destroy$)).subscribe({
-      next: d => { this.itens = d; this.listLoading = false; },
-      error: () => { this.erroGeral = 'Erro ao carregar.'; this.listLoading = false; }
+      next: d => { this.itens = d; this.listLoading = false; this.cdr.detectChanges(); },
+      error: () => { this.erroGeral = 'Erro ao carregar.'; this.listLoading = false; this.cdr.detectChanges(); }
     });
   }
 
@@ -281,10 +288,11 @@ export class EquipamentosCrudComponent implements OnInit {
         this.loading = false;
         this.cancelar();
         this.sucesso = 'Equipamento salvo.';
-        setTimeout(() => this.sucesso = '', 3000);
+        this.cdr.detectChanges();
+        setTimeout(() => { this.sucesso = ''; this.cdr.detectChanges(); }, 3000);
         this.listar();
       },
-      error: () => { this.erroGeral = 'Erro ao salvar.'; this.loading = false; }
+      error: () => { this.erroGeral = 'Erro ao salvar.'; this.loading = false; this.cdr.detectChanges(); }
     });
   }
 
@@ -300,29 +308,24 @@ export class EquipamentosCrudComponent implements OnInit {
   confirmOk() {
     const e = this.confirm.item; if (!e?.id) return; this.confirm.loading = true;
     this.service.excluir(e.id).pipe(takeUntil(this.destroy$)).subscribe({
-      next: () => { this.confirm = { show: false, title: '', text: '', loading: false, item: null }; this.sucesso = 'Equipamento excluído.'; setTimeout(() => this.sucesso = '', 3000); this.listar(); },
-      error: () => { this.confirm.show = false; this.erroGeral = 'Erro ao excluir.'; }
+      next: () => { this.confirm = { show: false, title: '', text: '', loading: false, item: null }; this.sucesso = 'Equipamento excluído.'; this.cdr.detectChanges(); setTimeout(() => { this.sucesso = ''; this.cdr.detectChanges(); }, 3000); this.listar(); },
+      error: () => { this.confirm.show = false; this.erroGeral = 'Erro ao excluir.'; this.cdr.detectChanges(); }
     });
   }
   confirmCancel() { this.confirm = { show: false, title: '', text: '', loading: false, item: null }; }
 
   consultar() {
-    this.resultado = null;
     this.erro = '';
-    if (!this.valor) { this.erro = 'Informe um valor.'; return; }
+    this.resultados = [];
+    if (!this.valor) { this.cdr.detectChanges(); return; }
+    const val = this.valor.toLowerCase();
     if (this.campo === 'id') {
-      const id = Number(this.valor);
-      if (isNaN(id)) { this.erro = 'ID deve ser número.'; return; }
-      this.searchLoading = true;
-      this.service.buscarPorId(id).pipe(takeUntil(this.destroy$)).subscribe({
-        next: d => { this.resultado = d; this.searchLoading = false; },
-        error: () => { this.erro = 'Não encontrado.'; this.searchLoading = false; }
-      });
+      this.resultados = this.itens.filter(e => String(e.id).includes(val));
+      if (this.resultados.length === 0) this.erro = 'Não encontrado.';
     } else {
-      const val = this.valor.toLowerCase();
-      const found = this.itens.find(e => String(e[this.campo as keyof Equipamento] ?? '').toLowerCase().includes(val));
-      this.resultado = found ?? null;
-      if (!found) this.erro = 'Não encontrado.';
+      this.resultados = this.itens.filter(e => String(e[this.campo as keyof Equipamento] ?? '').toLowerCase().includes(val));
+      if (this.resultados.length === 0) this.erro = 'Não encontrado.';
     }
+    this.cdr.detectChanges();
   }
 }

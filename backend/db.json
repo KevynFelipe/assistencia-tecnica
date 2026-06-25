@@ -1,668 +1,627 @@
 {
-    "funcionarios":  [
-                         {
-                             "id":  1,
-                             "nome":  "João Silva",
-                             "cargo":  "Técnico",
-                             "telefone":  "11999999999",
-                             "email":  "joao@email.com",
-                             "salario":  3200,
-                             "senha":  "1234"
-                         },
-                         {
-                             "id":  2,
-                             "nome":  "Maria Souza",
-                             "cargo":  "Atendente",
-                             "telefone":  "11988888888",
-                             "email":  "maria@email.com",
-                             "salario":  2800,
-                             "senha":  "1234"
-                         },
-                         {
-                             "nome":  "Fulano",
-                             "cargo":  "Montador",
-                             "telefone":  "11222333444",
-                             "email":  "fulano@email.com",
-                             "salario":  2500,
-                             "id":  3,
-                             "senha":  "1234"
-                         },
-                         {
-                             "nome":  "Beltrano",
-                             "cargo":  "Técnico",
-                             "telefone":  "1122232233223",
-                             "email":  "beltrano@email.com",
-                             "salario":  3200,
-                             "id":  4,
-                             "senha":  "1234"
-                         },
-                         {
-                             "nome":  "Admin",
-                             "cargo":  "Gerente",
-                             "telefone":  "11900000000",
-                             "email":  "admin@email.com",
-                             "salario":  8000,
-                             "id":  5,
-                             "senha":  "1234"
-                         },
-                         {
-                             "id":  10,
-                             "telefone":  "11910101010",
-                             "salario":  3500,
-                             "cargo":  "Técnica",
-                             "email":  "ana.beatriz@email.com",
-                             "nome":  "Ana Beatriz",
-                             "senha":  "1234"
-                         },
-                         {
-                             "id":  11,
-                             "telefone":  "11911111111",
-                             "salario":  2900,
-                             "cargo":  "Atendente",
-                             "email":  "carlos.edu@email.com",
-                             "nome":  "Carlos Eduardo",
-                             "senha":  "1234"
-                         },
-                         {
-                             "id":  12,
-                             "telefone":  "11912121212",
-                             "salario":  3400,
-                             "cargo":  "Técnica",
-                             "email":  "daniela.oliveira@email.com",
-                             "nome":  "Daniela Oliveira",
-                             "senha":  "1234"
-                         },
-                         {
-                             "id":  13,
-                             "telefone":  "11913131313",
-                             "salario":  2600,
-                             "cargo":  "Montador",
-                             "email":  "eduardo.santos@email.com",
-                             "nome":  "Eduardo Santos",
-                             "senha":  "1234"
-                         },
-                         {
-                             "id":  14,
-                             "telefone":  "11914141414",
-                             "salario":  2800,
-                             "cargo":  "Atendente",
-                             "email":  "fernanda.lima@email.com",
-                             "nome":  "Fernanda Lima",
-                             "senha":  "1234"
-                         },
-                         {
-                             "id":  15,
-                             "telefone":  "11915151515",
-                             "salario":  3700,
-                             "cargo":  "Técnico",
-                             "email":  "gabriel.souza@email.com",
-                             "nome":  "Gabriel Souza",
-                             "senha":  "1234"
-                         },
-                         {
-                             "id":  16,
-                             "telefone":  "11916161616",
-                             "salario":  8500,
-                             "cargo":  "Gerente",
-                             "email":  "helena.costa@email.com",
-                             "nome":  "Helena Costa",
-                             "senha":  "1234"
-                         }
-                     ],
-    "clientes":  [
-                     {
-                         "id":  1,
-                         "nome":  "Carlos Santos",
-                         "email":  "carlos@email.com",
-                         "telefone":  "11977777777",
-                         "endereco":  "Rua A, 123",
-                         "cpfCnpj":  "123.456.789-00",
-                         "tipo":  "PF",
-                         "senha":  "1234",
-                         "ativo":  true
-                     },
-                     {
-                         "id":  2,
-                         "nome":  "Ana Oliveira",
-                         "email":  "ana@email.com",
-                         "telefone":  "11966666666",
-                         "endereco":  "Rua B, 456",
-                         "cpfCnpj":  "987.654.321-00",
-                         "tipo":  "PF",
-                         "senha":  "1234",
-                         "ativo":  true
-                     },
-                     {
-                         "nome":  "Tech Solutions Ltda",
-                         "email":  "contato@techsolutions.com",
-                         "telefone":  "11333333333",
-                         "endereco":  "Av. Comercial, 1000",
-                         "cpfCnpj":  "12.345.678/0001-90",
-                         "tipo":  "PJ",
-                         "senha":  "1234",
-                         "ativo":  true,
-                         "id":  3
-                     },
-                     {
-                         "nome":  "Gabriel Quaresma da SIlva",
-                         "email":  "gabriel@email.com",
-                         "telefone":  "119999999",
-                         "cpfCnpj":  "40243861826",
-                         "endereco":  "Rua Ópera 240",
-                         "tipo":  "PF",
-                         "senha":  "1234",
-                         "ativo":  true,
-                         "id":  4
-                     },
-                     {
-                         "nome":  "Gabriel",
-                         "email":  "hehe@email.com",
-                         "telefone":  "11999999999",
-                         "cpfCnpj":  "123456789-10",
-                         "endereco":  "casa",
-                         "tipo":  "PJ",
-                         "senha":  "1234",
-                         "ativo":  true,
-                         "id":  5
-                     },
-                     {
-                         "tipo":  "PF",
-                         "id":  10,
-                         "endereco":  "Rua Dez, 100",
-                         "cpfCnpj":  "111.222.333-44",
-                         "telefone":  "11917171717",
-                         "senha":  "1234",
-                         "ativo":  true,
-                         "nome":  "João Pedro Alves",
-                         "email":  "joao.pedro@email.com"
-                     },
-                     {
-                         "tipo":  "PF",
-                         "id":  11,
-                         "endereco":  "Av Onze, 200",
-                         "cpfCnpj":  "222.333.444-55",
-                         "telefone":  "11918181818",
-                         "senha":  "1234",
-                         "ativo":  true,
-                         "nome":  "Maria Clara Gomes",
-                         "email":  "maria.clara@email.com"
-                     },
-                     {
-                         "tipo":  "PF",
-                         "id":  12,
-                         "endereco":  "Rua Doze, 300",
-                         "cpfCnpj":  "333.444.555-66",
-                         "telefone":  "11919191919",
-                         "senha":  "1234",
-                         "ativo":  true,
-                         "nome":  "Pedro Henrique Dias",
-                         "email":  "pedro.dias@email.com"
-                     },
-                     {
-                         "tipo":  "PF",
-                         "id":  13,
-                         "endereco":  "Rua Treze, 400",
-                         "cpfCnpj":  "444.555.666-77",
-                         "telefone":  "11920202020",
-                         "senha":  "1234",
-                         "ativo":  true,
-                         "nome":  "Ana Luiza Martins",
-                         "email":  "ana.martins@email.com"
-                     },
-                     {
-                         "tipo":  "PF",
-                         "id":  14,
-                         "endereco":  "Rua Quatorze, 500",
-                         "cpfCnpj":  "555.666.777-88",
-                         "telefone":  "11921212121",
-                         "senha":  "1234",
-                         "ativo":  true,
-                         "nome":  "Lucas Gabriel Pereira",
-                         "email":  "lucas.pereira@email.com"
-                     },
-                     {
-                         "tipo":  "PF",
-                         "id":  15,
-                         "endereco":  "Rua Quinze, 600",
-                         "cpfCnpj":  "666.777.888-99",
-                         "telefone":  "11922222222",
-                         "senha":  "1234",
-                         "ativo":  true,
-                         "nome":  "Julia Fernanda Ribeiro",
-                         "email":  "julia.ribeiro@email.com"
-                     },
-                     {
-                         "tipo":  "PJ",
-                         "id":  16,
-                         "endereco":  "Av Dezesseis, 700",
-                         "cpfCnpj":  "777.888.999-00",
-                         "telefone":  "11923232323",
-                         "senha":  "1234",
-                         "ativo":  true,
-                         "nome":  "Rafael Augusto Campos",
-                         "email":  "rafael.campos@email.com"
-                     }
-                 ],
-    "equipamentos":  [
-                         {
-                             "id":  1,
-                             "clienteId":  1,
-                             "clienteNome":  "Carlos Santos",
-                             "marca":  "Apple",
-                             "modelo":  "iPhone 12",
-                             "serial":  "F2ABCD1234",
-                             "imei":  "351234567891234",
-                             "observacoes":  "Display original, sem histórico de reparos"
-                         },
-                         {
-                             "id":  2,
-                             "clienteId":  1,
-                             "clienteNome":  "Carlos Santos",
-                             "marca":  "Samsung",
-                             "modelo":  "Galaxy S23",
-                             "serial":  "R5XYZ78901",
-                             "imei":  "359876543210987",
-                             "observacoes":  ""
-                         },
-                         {
-                             "id":  3,
-                             "clienteId":  2,
-                             "clienteNome":  "Ana Oliveira",
-                             "marca":  "Dell",
-                             "modelo":  "Inspiron 15",
-                             "serial":  "DELL123456",
-                             "imei":  "",
-                             "observacoes":  "Memória expandida para 16GB"
-                         },
-                         {
-                             "id":  4,
-                             "clienteId":  2,
-                             "clienteNome":  "Ana Oliveira",
-                             "marca":  "Sony",
-                             "modelo":  "PlayStation 5",
-                             "serial":  "PS5-ABCD-12345",
-                             "imei":  "",
-                             "observacoes":  "Console fat, sem modificações"
-                         },
-                         {
-                             "clienteId":  1,
-                             "id":  10,
-                             "serial":  "XM10ABCD01",
-                             "modelo":  "Redmi Note 12",
-                             "clienteNome":  "Carlos Santos",
-                             "imei":  "351000000000001",
-                             "marca":  "Xiaomi",
-                             "observacoes":  ""
-                         },
-                         {
-                             "clienteId":  2,
-                             "id":  11,
-                             "serial":  "MTRL11XYZ01",
-                             "modelo":  "Edge 30",
-                             "clienteNome":  "Ana Oliveira",
-                             "imei":  "351111111111111",
-                             "marca":  "Motorola",
-                             "observacoes":  "Com película"
-                         },
-                         {
-                             "clienteId":  3,
-                             "id":  12,
-                             "serial":  "LNV12CDE01",
-                             "modelo":  "ThinkPad X1",
-                             "clienteNome":  "Tech Solutions Ltda",
-                             "imei":  "",
-                             "marca":  "Lenovo",
-                             "observacoes":  "Notebook corporativo"
-                         },
-                         {
-                             "clienteId":  4,
-                             "id":  13,
-                             "serial":  "APP13FGH01",
-                             "modelo":  "MacBook Air M2",
-                             "clienteNome":  "Gabriel Quaresma da SIlva",
-                             "imei":  "",
-                             "marca":  "Apple",
-                             "observacoes":  ""
-                         },
-                         {
-                             "clienteId":  10,
-                             "id":  14,
-                             "serial":  "SAM14IJK01",
-                             "modelo":  "Galaxy A54",
-                             "clienteNome":  "João Pedro Alves",
-                             "imei":  "351414141414141",
-                             "marca":  "Samsung",
-                             "observacoes":  "Garantia vigente"
-                         },
-                         {
-                             "clienteId":  11,
-                             "id":  15,
-                             "serial":  "APP15LMN01",
-                             "modelo":  "iPhone 14",
-                             "clienteNome":  "Maria Clara Gomes",
-                             "imei":  "351515151515151",
-                             "marca":  "Apple",
-                             "observacoes":  "Display trincado"
-                         },
-                         {
-                             "clienteId":  12,
-                             "id":  16,
-                             "serial":  "DELL16OPQ01",
-                             "modelo":  "XPS 15",
-                             "clienteNome":  "Pedro Henrique Dias",
-                             "imei":  "",
-                             "marca":  "Dell",
-                             "observacoes":  "Teclado com defeito"
-                         }
-                     ],
-    "ordens":  [
-                   {
-                       "tecnicoId":  1,
-                       "tecnicoNome":  "João Silva",
-                       "clienteId":  1,
-                       "clienteNome":  "Carlos Santos",
-                       "equipamentoId":  1,
-                       "equipamentoNome":  "Apple iPhone 12",
-                       "aparelho":  "iPhone 12",
-                       "tipoAparelho":  "Smartphone",
-                       "defeito":  "Tela quebrada - display não acende",
-                       "status":  "Pronto",
-                       "prioridade":  "Alta",
-                       "dataEntrada":  "2026-05-20",
-                       "tempoEstimado":  3,
-                       "valorServico":  120,
-                       "valorPecas":  179,
-                       "valorTotal":  299,
-                       "garantiaDias":  90,
-                       "garantiaFim":  "2026-08-20",
-                       "diagnosticos":  "Display danificado, touch não responde. Necessário troca completa do conjunto tela.",
-                       "observacoes":  "Aguardando chegar a tela",
-                       "historico":  [
-                                         {
-                                             "status":  "Na Fila",
-                                             "data":  "2026-05-20 09:15",
-                                             "responsavel":  "Maria Souza"
-                                         },
-                                         {
-                                             "status":  "Em Análise",
-                                             "data":  "2026-05-20 14:30",
-                                             "responsavel":  "João Silva"
-                                         },
-                                         {
-                                             "status":  "Orçamento Aprovado",
-                                             "data":  "2026-05-21 10:00",
-                                             "responsavel":  "João Silva"
-                                         },
-                                         {
-                                             "status":  "Pronto",
-                                             "data":  "2026-05-23 16:00",
-                                             "responsavel":  "João Silva"
-                                         }
-                                     ],
-                       "id":  1
-                   },
-                   {
-                       "id":  2,
-                       "tecnicoId":  1,
-                       "tecnicoNome":  "João Silva",
-                       "clienteId":  2,
-                       "clienteNome":  "Ana Oliveira",
-                       "equipamentoId":  3,
-                       "equipamentoNome":  "Dell Inspiron 15",
-                       "aparelho":  "Notebook Dell Inspiron",
-                       "tipoAparelho":  "Notebook",
-                       "defeito":  "Não liga, led de carga acende mas não dá boot",
-                       "status":  "Em Análise",
-                       "prioridade":  "Normal",
-                       "dataEntrada":  "2026-05-22",
-                       "tempoEstimado":  5,
-                       "valorServico":  80,
-                       "valorTotal":  80,
-                       "diagnosticos":  "Suspeita de falha na placa-mãe. Testando componentes de alimentação.",
-                       "observacoes":  "",
-                       "historico":  [
-                                         {
-                                             "status":  "Na Fila",
-                                             "data":  "2026-05-22 08:00",
-                                             "responsavel":  "Maria Souza"
-                                         },
-                                         {
-                                             "status":  "Em Análise",
-                                             "data":  "2026-05-22 11:20",
-                                             "responsavel":  "João Silva"
-                                         }
-                                     ]
-                   },
-                   {
-                       "id":  3,
-                       "tecnicoId":  4,
-                       "tecnicoNome":  "Beltrano",
-                       "clienteId":  1,
-                       "clienteNome":  "Carlos Santos",
-                       "equipamentoId":  2,
-                       "equipamentoNome":  "Samsung Galaxy S23",
-                       "aparelho":  "Samsung Galaxy S23",
-                       "tipoAparelho":  "Smartphone",
-                       "defeito":  "Bateria viciada - não carrega acima de 15%",
-                       "status":  "Orçamento Aprovado",
-                       "prioridade":  "Normal",
-                       "dataEntrada":  "2026-05-18",
-                       "tempoEstimado":  2,
-                       "valorServico":  80,
-                       "valorPecas":  149,
-                       "valorTotal":  229,
-                       "garantiaDias":  90,
-                       "garantiaFim":  "2026-08-18",
-                       "diagnosticos":  "Bateria com capacidade reduzida para 12%. Substituição necessária.",
-                       "observacoes":  "Aguardando chegada da bateria",
-                       "historico":  [
-                                         {
-                                             "status":  "Na Fila",
-                                             "data":  "2026-05-18 14:00",
-                                             "responsavel":  "Maria Souza"
-                                         },
-                                         {
-                                             "status":  "Em Análise",
-                                             "data":  "2026-05-18 16:30",
-                                             "responsavel":  "Beltrano"
-                                         },
-                                         {
-                                             "status":  "Orçamento Aprovado",
-                                             "data":  "2026-05-19 09:00",
-                                             "responsavel":  "Beltrano"
-                                         }
-                                     ]
-                   },
-                   {
-                       "id":  4,
-                       "tecnicoId":  4,
-                       "tecnicoNome":  "Beltrano",
-                       "clienteId":  2,
-                       "clienteNome":  "Ana Oliveira",
-                       "equipamentoId":  4,
-                       "equipamentoNome":  "Sony PlayStation 5",
-                       "aparelho":  "PS5",
-                       "tipoAparelho":  "Console",
-                       "defeito":  "Superaquecimento - desliga após 30min de uso",
-                       "status":  "Na Fila",
-                       "prioridade":  "Urgente",
-                       "dataEntrada":  "2026-05-23",
-                       "tempoEstimado":  4,
-                       "diagnosticos":  "",
-                       "observacoes":  "Cliente relatou que já fez limpeza simples mas não resolveu",
-                       "historico":  [
-                                         {
-                                             "status":  "Na Fila",
-                                             "data":  "2026-05-23 10:30",
-                                             "responsavel":  "Maria Souza"
-                                         }
-                                     ]
-                   }
-               ],
-    "estoque":  [
-                    {
-                        "id":  1,
-                        "nome":  "Tela iPhone 12 Original",
-                        "quantidade":  3,
-                        "estoqueMinimo":  5,
-                        "valorCusto":  120,
-                        "valorVenda":  179,
-                        "categoria":  "Tela"
-                    },
-                    {
-                        "id":  2,
-                        "nome":  "Bateria Samsung S23",
-                        "quantidade":  2,
-                        "estoqueMinimo":  3,
-                        "valorCusto":  95,
-                        "valorVenda":  149,
-                        "categoria":  "Bateria"
-                    },
-                    {
-                        "id":  3,
-                        "nome":  "Pasta Térmica Arctic MX-4",
-                        "quantidade":  15,
-                        "estoqueMinimo":  5,
-                        "valorCusto":  8,
-                        "valorVenda":  25,
-                        "categoria":  "Consumível"
-                    },
-                    {
-                        "id":  4,
-                        "nome":  "Fonte Notebook Dell 65W",
-                        "quantidade":  1,
-                        "estoqueMinimo":  2,
-                        "valorCusto":  85,
-                        "valorVenda":  149,
-                        "categoria":  "Fonte"
-                    },
-                    {
-                        "id":  5,
-                        "nome":  "SSD Kingston 240GB",
-                        "quantidade":  8,
-                        "estoqueMinimo":  3,
-                        "valorCusto":  95,
-                        "valorVenda":  159,
-                        "categoria":  "Armazenamento"
-                    },
-                    {
-                        "id":  10,
-                        "estoqueMinimo":  3,
-                        "categoria":  "Tela",
-                        "valorVenda":  249,
-                        "nome":  "Tela iPhone 13 Original",
-                        "quantidade":  4,
-                        "valorCusto":  165
-                    },
-                    {
-                        "id":  11,
-                        "estoqueMinimo":  4,
-                        "categoria":  "Bateria",
-                        "valorVenda":  139,
-                        "nome":  "Bateria iPhone 12",
-                        "quantidade":  6,
-                        "valorCusto":  85
-                    },
-                    {
-                        "id":  12,
-                        "estoqueMinimo":  2,
-                        "categoria":  "Fonte",
-                        "valorVenda":  129,
-                        "nome":  "Fonte Notebook Lenovo 45W",
-                        "quantidade":  3,
-                        "valorCusto":  75
-                    },
-                    {
-                        "id":  13,
-                        "estoqueMinimo":  2,
-                        "categoria":  "Armazenamento",
-                        "valorVenda":  279,
-                        "nome":  "HD Externo Seagate 1TB",
-                        "quantidade":  5,
-                        "valorCusto":  180
-                    },
-                    {
-                        "id":  14,
-                        "estoqueMinimo":  5,
-                        "categoria":  "Memória",
-                        "valorVenda":  159,
-                        "nome":  "Memória RAM DDR4 8GB",
-                        "quantidade":  10,
-                        "valorCusto":  95
-                    },
-                    {
-                        "id":  15,
-                        "estoqueMinimo":  3,
-                        "categoria":  "Tela",
-                        "valorVenda":  239,
-                        "nome":  "Tela Galaxy S23 Original",
-                        "quantidade":  2,
-                        "valorCusto":  155
-                    },
-                    {
-                        "id":  16,
-                        "estoqueMinimo":  5,
-                        "categoria":  "Consumível",
-                        "valorVenda":  35,
-                        "nome":  "Pasta Térmica Corsair XTM50",
-                        "quantidade":  12,
-                        "valorCusto":  12
-                    }
-                ],
-    "mensagens":  [
-                      {
-                          "id":  1,
-                          "ordemId":  1,
-                          "remetente":  "cliente",
-                          "remetenteNome":  "Carlos Santos",
-                          "texto":  "Olá! Gostaria de saber se já tem previsão para o reparo do meu iPhone.",
-                          "data":  "2026-05-21T14:30:00"
-                      },
-                      {
-                          "id":  2,
-                          "ordemId":  1,
-                          "remetente":  "tecnico",
-                          "remetenteNome":  "João Silva",
-                          "texto":  "Olá Carlos! A tela já chegou, estou finalizando o reparo hoje.",
-                          "data":  "2026-05-21T16:45:00"
-                      },
-                      {
-                          "id":  3,
-                          "ordemId":  1,
-                          "remetente":  "cliente",
-                          "remetenteNome":  "Carlos Santos",
-                          "texto":  "Que ótimo! Obrigado pela atualização.",
-                          "data":  "2026-05-21T17:00:00"
-                      },
-                      {
-                          "id":  4,
-                          "ordemId":  2,
-                          "remetente":  "cliente",
-                          "remetenteNome":  "Ana Oliveira",
-                          "texto":  "Meu notebook ainda está em análise? Preciso de uma previsão.",
-                          "data":  "2026-05-24T09:15:00"
-                      }
-                  ],
-    "chamados":  [
-                     {
-                         "id":  1,
-                         "clienteId":  1,
-                         "clienteNome":  "Carlos Santos",
-                         "equipamentoId":  1,
-                         "equipamentoNome":  "Apple iPhone 12",
-                         "descricao":  "Após o reparo da tela, o sensor de proximidade não está funcionando.",
-                         "status":  "Aberto",
-                         "data":  "2026-05-24",
-                         "observacoes":  ""
-                     },
-                     {
-                         "clienteId":  4,
-                         "clienteNome":  "Gabriel Quaresma da SIlva",
-                         "descricao":  "me ajuda pai",
-                         "status":  "Aberto",
-                         "data":  "2026-06-06",
-                         "observacoes":  "",
-                         "id":  2
-                     }
-                 ]
+  "funcionarios": [
+    {
+      "id": 1,
+      "nome": "João Silva",
+      "cargo": "Técnico",
+      "telefone": "11999999999",
+      "email": "joao@email.com",
+      "salario": 3200,
+      "senha": "1234"
+    },
+    {
+      "id": 2,
+      "nome": "Maria Souza",
+      "cargo": "Atendente",
+      "telefone": "11988888888",
+      "email": "maria@email.com",
+      "salario": 2800,
+      "senha": "1234"
+    },
+    {
+      "nome": "Fulano",
+      "cargo": "Montador",
+      "telefone": "11222333444",
+      "email": "fulano@email.com",
+      "salario": 2500,
+      "id": 3,
+      "senha": "1234"
+    },
+    {
+      "nome": "Beltrano",
+      "cargo": "Técnico",
+      "telefone": "1122232233223",
+      "email": "beltrano@email.com",
+      "salario": 3200,
+      "id": 4,
+      "senha": "1234"
+    },
+    {
+      "nome": "Admin",
+      "cargo": "Gerente",
+      "telefone": "11900000000",
+      "email": "admin@email.com",
+      "salario": 8000,
+      "id": 5,
+      "senha": "1234"
+    },
+    {
+      "id": 10,
+      "telefone": "11910101010",
+      "salario": 3500,
+      "cargo": "Técnica",
+      "email": "ana.beatriz@email.com",
+      "nome": "Ana Beatriz",
+      "senha": "1234"
+    },
+    {
+      "id": 11,
+      "telefone": "11911111111",
+      "salario": 2900,
+      "cargo": "Atendente",
+      "email": "carlos.edu@email.com",
+      "nome": "Carlos Eduardo",
+      "senha": "1234"
+    },
+    {
+      "id": 12,
+      "telefone": "11912121212",
+      "salario": 3400,
+      "cargo": "Técnica",
+      "email": "daniela.oliveira@email.com",
+      "nome": "Daniela Oliveira",
+      "senha": "1234"
+    },
+    {
+      "id": 13,
+      "telefone": "11913131313",
+      "salario": 2600,
+      "cargo": "Montador",
+      "email": "eduardo.santos@email.com",
+      "nome": "Eduardo Santos",
+      "senha": "1234"
+    },
+    {
+      "id": 14,
+      "telefone": "11914141414",
+      "salario": 2800,
+      "cargo": "Atendente",
+      "email": "fernanda.lima@email.com",
+      "nome": "Fernanda Lima",
+      "senha": "1234"
+    },
+    {
+      "id": 15,
+      "telefone": "11915151515",
+      "salario": 3700,
+      "cargo": "Técnico",
+      "email": "gabriel.souza@email.com",
+      "nome": "Gabriel Souza",
+      "senha": "1234"
+    },
+    {
+      "id": 16,
+      "telefone": "11916161616",
+      "salario": 8500,
+      "cargo": "Gerente",
+      "email": "helena.costa@email.com",
+      "nome": "Helena Costa",
+      "senha": "1234"
+    }
+  ],
+  "clientes": [
+    {
+      "id": 1,
+      "nome": "Carlos Santos",
+      "email": "carlos@email.com",
+      "telefone": "11977777777",
+      "endereco": "Rua A, 123",
+      "cpfCnpj": "123.456.789-00",
+      "tipo": "PF",
+      "senha": "1234",
+      "ativo": true
+    },
+    {
+      "id": 2,
+      "nome": "Ana Oliveira",
+      "email": "ana@email.com",
+      "telefone": "11966666666",
+      "endereco": "Rua B, 456",
+      "cpfCnpj": "987.654.321-00",
+      "tipo": "PF",
+      "senha": "1234",
+      "ativo": true
+    },
+    {
+      "nome": "Tech Solutions Ltda",
+      "email": "contato@techsolutions.com",
+      "telefone": "11333333333",
+      "endereco": "Av. Comercial, 1000",
+      "cpfCnpj": "12.345.678/0001-90",
+      "tipo": "PJ",
+      "senha": "1234",
+      "ativo": true,
+      "id": 3
+    },
+    {
+      "tipo": "PF",
+      "id": 10,
+      "endereco": "Rua Dez, 100",
+      "cpfCnpj": "111.222.333-44",
+      "telefone": "11917171717",
+      "senha": "1234",
+      "ativo": true,
+      "nome": "João Pedro Alves",
+      "email": "joao.pedro@email.com"
+    },
+    {
+      "tipo": "PF",
+      "id": 11,
+      "endereco": "Av Onze, 200",
+      "cpfCnpj": "222.333.444-55",
+      "telefone": "11918181818",
+      "senha": "1234",
+      "ativo": true,
+      "nome": "Maria Clara Gomes",
+      "email": "maria.clara@email.com"
+    },
+    {
+      "tipo": "PF",
+      "id": 12,
+      "endereco": "Rua Doze, 300",
+      "cpfCnpj": "333.444.555-66",
+      "telefone": "11919191919",
+      "senha": "1234",
+      "ativo": true,
+      "nome": "Pedro Henrique Dias",
+      "email": "pedro.dias@email.com"
+    },
+    {
+      "tipo": "PF",
+      "id": 13,
+      "endereco": "Rua Treze, 400",
+      "cpfCnpj": "444.555.666-77",
+      "telefone": "11920202020",
+      "senha": "1234",
+      "ativo": true,
+      "nome": "Ana Luiza Martins",
+      "email": "ana.martins@email.com"
+    },
+    {
+      "tipo": "PF",
+      "id": 14,
+      "endereco": "Rua Quatorze, 500",
+      "cpfCnpj": "555.666.777-88",
+      "telefone": "11921212121",
+      "senha": "1234",
+      "ativo": true,
+      "nome": "Lucas Gabriel Pereira",
+      "email": "lucas.pereira@email.com"
+    },
+    {
+      "tipo": "PF",
+      "id": 15,
+      "endereco": "Rua Quinze, 600",
+      "cpfCnpj": "666.777.888-99",
+      "telefone": "11922222222",
+      "senha": "1234",
+      "ativo": true,
+      "nome": "Julia Fernanda Ribeiro",
+      "email": "julia.ribeiro@email.com"
+    },
+    {
+      "tipo": "PJ",
+      "id": 16,
+      "endereco": "Av Dezesseis, 700",
+      "cpfCnpj": "777.888.999-00",
+      "telefone": "11923232323",
+      "senha": "1234",
+      "ativo": true,
+      "nome": "Rafael Augusto Campos",
+      "email": "rafael.campos@email.com"
+    }
+  ],
+  "equipamentos": [
+    {
+      "id": 1,
+      "clienteId": 1,
+      "clienteNome": "Carlos Santos",
+      "marca": "Apple",
+      "modelo": "iPhone 12",
+      "serial": "F2ABCD1234",
+      "imei": "351234567891234",
+      "observacoes": "Display original, sem histórico de reparos"
+    },
+    {
+      "id": 2,
+      "clienteId": 1,
+      "clienteNome": "Carlos Santos",
+      "marca": "Samsung",
+      "modelo": "Galaxy S23",
+      "serial": "R5XYZ78901",
+      "imei": "359876543210987",
+      "observacoes": ""
+    },
+    {
+      "id": 3,
+      "clienteId": 2,
+      "clienteNome": "Ana Oliveira",
+      "marca": "Dell",
+      "modelo": "Inspiron 15",
+      "serial": "DELL123456",
+      "imei": "",
+      "observacoes": "Memória expandida para 16GB"
+    },
+    {
+      "id": 4,
+      "clienteId": 2,
+      "clienteNome": "Ana Oliveira",
+      "marca": "Sony",
+      "modelo": "PlayStation 5",
+      "serial": "PS5-ABCD-12345",
+      "imei": "",
+      "observacoes": "Console fat, sem modificações"
+    },
+    {
+      "clienteId": 1,
+      "id": 10,
+      "serial": "XM10ABCD01",
+      "modelo": "Redmi Note 12",
+      "clienteNome": "Carlos Santos",
+      "imei": "351000000000001",
+      "marca": "Xiaomi",
+      "observacoes": ""
+    },
+    {
+      "clienteId": 2,
+      "id": 11,
+      "serial": "MTRL11XYZ01",
+      "modelo": "Edge 30",
+      "clienteNome": "Ana Oliveira",
+      "imei": "351111111111111",
+      "marca": "Motorola",
+      "observacoes": "Com película"
+    },
+    {
+      "clienteId": 3,
+      "id": 12,
+      "serial": "LNV12CDE01",
+      "modelo": "ThinkPad X1",
+      "clienteNome": "Tech Solutions Ltda",
+      "imei": "",
+      "marca": "Lenovo",
+      "observacoes": "Notebook corporativo"
+    },
+    {
+      "clienteId": 10,
+      "id": 14,
+      "serial": "SAM14IJK01",
+      "modelo": "Galaxy A54",
+      "clienteNome": "João Pedro Alves",
+      "imei": "351414141414141",
+      "marca": "Samsung",
+      "observacoes": "Garantia vigente"
+    },
+    {
+      "clienteId": 11,
+      "id": 15,
+      "serial": "APP15LMN01",
+      "modelo": "iPhone 14",
+      "clienteNome": "Maria Clara Gomes",
+      "imei": "351515151515151",
+      "marca": "Apple",
+      "observacoes": "Display trincado"
+    },
+    {
+      "clienteId": 12,
+      "id": 16,
+      "serial": "DELL16OPQ01",
+      "modelo": "XPS 15",
+      "clienteNome": "Pedro Henrique Dias",
+      "imei": "",
+      "marca": "Dell",
+      "observacoes": "Teclado com defeito"
+    }
+  ],
+  "ordens": [
+    {
+      "tecnicoId": 1,
+      "tecnicoNome": "João Silva",
+      "clienteId": 1,
+      "clienteNome": "Carlos Santos",
+      "equipamentoId": 1,
+      "equipamentoNome": "Apple iPhone 12",
+      "aparelho": "iPhone 12",
+      "tipoAparelho": "Smartphone",
+      "defeito": "Tela quebrada - display não acende",
+      "status": "Pronto",
+      "prioridade": "Alta",
+      "dataEntrada": "2026-05-20",
+      "tempoEstimado": 3,
+      "valorServico": 120,
+      "valorPecas": 179,
+      "valorTotal": 299,
+      "garantiaDias": 90,
+      "garantiaFim": "2026-08-20",
+      "diagnosticos": "Display danificado, touch não responde. Necessário troca completa do conjunto tela.",
+      "observacoes": "Aguardando chegar a tela",
+      "historico": [
+        {
+          "status": "Na Fila",
+          "data": "2026-05-20 09:15",
+          "responsavel": "Maria Souza"
+        },
+        {
+          "status": "Em Análise",
+          "data": "2026-05-20 14:30",
+          "responsavel": "João Silva"
+        },
+        {
+          "status": "Orçamento Aprovado",
+          "data": "2026-05-21 10:00",
+          "responsavel": "João Silva"
+        },
+        {
+          "status": "Pronto",
+          "data": "2026-05-23 16:00",
+          "responsavel": "João Silva"
+        }
+      ],
+      "id": 1
+    },
+    {
+      "id": 2,
+      "tecnicoId": 1,
+      "tecnicoNome": "João Silva",
+      "clienteId": 2,
+      "clienteNome": "Ana Oliveira",
+      "equipamentoId": 3,
+      "equipamentoNome": "Dell Inspiron 15",
+      "aparelho": "Notebook Dell Inspiron",
+      "tipoAparelho": "Notebook",
+      "defeito": "Não liga, led de carga acende mas não dá boot",
+      "status": "Em Análise",
+      "prioridade": "Normal",
+      "dataEntrada": "2026-05-22",
+      "tempoEstimado": 5,
+      "valorServico": 80,
+      "valorTotal": 80,
+      "diagnosticos": "Suspeita de falha na placa-mãe. Testando componentes de alimentação.",
+      "observacoes": "",
+      "historico": [
+        {
+          "status": "Na Fila",
+          "data": "2026-05-22 08:00",
+          "responsavel": "Maria Souza"
+        },
+        {
+          "status": "Em Análise",
+          "data": "2026-05-22 11:20",
+          "responsavel": "João Silva"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "tecnicoId": 4,
+      "tecnicoNome": "Beltrano",
+      "clienteId": 1,
+      "clienteNome": "Carlos Santos",
+      "equipamentoId": 2,
+      "equipamentoNome": "Samsung Galaxy S23",
+      "aparelho": "Samsung Galaxy S23",
+      "tipoAparelho": "Smartphone",
+      "defeito": "Bateria viciada - não carrega acima de 15%",
+      "status": "Orçamento Aprovado",
+      "prioridade": "Normal",
+      "dataEntrada": "2026-05-18",
+      "tempoEstimado": 2,
+      "valorServico": 80,
+      "valorPecas": 149,
+      "valorTotal": 229,
+      "garantiaDias": 90,
+      "garantiaFim": "2026-08-18",
+      "diagnosticos": "Bateria com capacidade reduzida para 12%. Substituição necessária.",
+      "observacoes": "Aguardando chegada da bateria",
+      "historico": [
+        {
+          "status": "Na Fila",
+          "data": "2026-05-18 14:00",
+          "responsavel": "Maria Souza"
+        },
+        {
+          "status": "Em Análise",
+          "data": "2026-05-18 16:30",
+          "responsavel": "Beltrano"
+        },
+        {
+          "status": "Orçamento Aprovado",
+          "data": "2026-05-19 09:00",
+          "responsavel": "Beltrano"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "tecnicoId": 4,
+      "tecnicoNome": "Beltrano",
+      "clienteId": 2,
+      "clienteNome": "Ana Oliveira",
+      "equipamentoId": 4,
+      "equipamentoNome": "Sony PlayStation 5",
+      "aparelho": "PS5",
+      "tipoAparelho": "Console",
+      "defeito": "Superaquecimento - desliga após 30min de uso",
+      "status": "Na Fila",
+      "prioridade": "Urgente",
+      "dataEntrada": "2026-05-23",
+      "tempoEstimado": 4,
+      "diagnosticos": "",
+      "observacoes": "Cliente relatou que já fez limpeza simples mas não resolveu",
+      "historico": [
+        {
+          "status": "Na Fila",
+          "data": "2026-05-23 10:30",
+          "responsavel": "Maria Souza"
+        }
+      ]
+    }
+  ],
+  "estoque": [
+    {
+      "id": 1,
+      "nome": "Tela iPhone 12 Original",
+      "quantidade": 3,
+      "estoqueMinimo": 5,
+      "valorCusto": 120,
+      "valorVenda": 179,
+      "categoria": "Tela"
+    },
+    {
+      "id": 2,
+      "nome": "Bateria Samsung S23",
+      "quantidade": 2,
+      "estoqueMinimo": 3,
+      "valorCusto": 95,
+      "valorVenda": 149,
+      "categoria": "Bateria"
+    },
+    {
+      "id": 3,
+      "nome": "Pasta Térmica Arctic MX-4",
+      "quantidade": 15,
+      "estoqueMinimo": 5,
+      "valorCusto": 8,
+      "valorVenda": 25,
+      "categoria": "Consumível"
+    },
+    {
+      "id": 4,
+      "nome": "Fonte Notebook Dell 65W",
+      "quantidade": 1,
+      "estoqueMinimo": 2,
+      "valorCusto": 85,
+      "valorVenda": 149,
+      "categoria": "Fonte"
+    },
+    {
+      "id": 5,
+      "nome": "SSD Kingston 240GB",
+      "quantidade": 8,
+      "estoqueMinimo": 3,
+      "valorCusto": 95,
+      "valorVenda": 159,
+      "categoria": "Armazenamento"
+    },
+    {
+      "id": 10,
+      "estoqueMinimo": 3,
+      "categoria": "Tela",
+      "valorVenda": 249,
+      "nome": "Tela iPhone 13 Original",
+      "quantidade": 4,
+      "valorCusto": 165
+    },
+    {
+      "id": 11,
+      "estoqueMinimo": 4,
+      "categoria": "Bateria",
+      "valorVenda": 139,
+      "nome": "Bateria iPhone 12",
+      "quantidade": 6,
+      "valorCusto": 85
+    },
+    {
+      "id": 12,
+      "estoqueMinimo": 2,
+      "categoria": "Fonte",
+      "valorVenda": 129,
+      "nome": "Fonte Notebook Lenovo 45W",
+      "quantidade": 3,
+      "valorCusto": 75
+    },
+    {
+      "id": 13,
+      "estoqueMinimo": 2,
+      "categoria": "Armazenamento",
+      "valorVenda": 279,
+      "nome": "HD Externo Seagate 1TB",
+      "quantidade": 5,
+      "valorCusto": 180
+    },
+    {
+      "id": 14,
+      "estoqueMinimo": 5,
+      "categoria": "Memória",
+      "valorVenda": 159,
+      "nome": "Memória RAM DDR4 8GB",
+      "quantidade": 10,
+      "valorCusto": 95
+    },
+    {
+      "id": 15,
+      "estoqueMinimo": 3,
+      "categoria": "Tela",
+      "valorVenda": 239,
+      "nome": "Tela Galaxy S23 Original",
+      "quantidade": 2,
+      "valorCusto": 155
+    },
+    {
+      "id": 16,
+      "estoqueMinimo": 5,
+      "categoria": "Consumível",
+      "valorVenda": 35,
+      "nome": "Pasta Térmica Corsair XTM50",
+      "quantidade": 12,
+      "valorCusto": 12
+    }
+  ],
+  "mensagens": [
+    {
+      "id": 1,
+      "ordemId": 1,
+      "remetente": "cliente",
+      "remetenteNome": "Carlos Santos",
+      "texto": "Olá! Gostaria de saber se já tem previsão para o reparo do meu iPhone.",
+      "data": "2026-05-21T14:30:00"
+    },
+    {
+      "id": 2,
+      "ordemId": 1,
+      "remetente": "tecnico",
+      "remetenteNome": "João Silva",
+      "texto": "Olá Carlos! A tela já chegou, estou finalizando o reparo hoje.",
+      "data": "2026-05-21T16:45:00"
+    },
+    {
+      "id": 3,
+      "ordemId": 1,
+      "remetente": "cliente",
+      "remetenteNome": "Carlos Santos",
+      "texto": "Que ótimo! Obrigado pela atualização.",
+      "data": "2026-05-21T17:00:00"
+    },
+    {
+      "id": 4,
+      "ordemId": 2,
+      "remetente": "cliente",
+      "remetenteNome": "Ana Oliveira",
+      "texto": "Meu notebook ainda está em análise? Preciso de uma previsão.",
+      "data": "2026-05-24T09:15:00"
+    }
+  ],
+  "chamados": [
+    {
+      "id": 1,
+      "clienteId": 1,
+      "clienteNome": "Carlos Santos",
+      "equipamentoId": 1,
+      "equipamentoNome": "Apple iPhone 12",
+      "descricao": "Após o reparo da tela, o sensor de proximidade não está funcionando.",
+      "status": "Aberto",
+      "data": "2026-05-24",
+      "observacoes": ""
+    }
+  ]
 }

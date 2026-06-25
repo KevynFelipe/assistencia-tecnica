@@ -6,8 +6,10 @@ import { forkJoin, Subject, takeUntil } from 'rxjs';
 import { OrdensService } from '../../core/services/ordens.service';
 import { ClientesService } from '../../core/services/clientes.service';
 import { FuncionariosService } from '../../core/services/funcionarios.service';
+import { EstoqueService } from '../../core/services/estoque.service';
+import { ChamadosService } from '../../core/services/chamados.service';
 import { AuthService } from '../../core/services/auth.service';
-import { OrdemServico, Cliente, Funcionario } from '../../core/types/types';
+import { OrdemServico, Cliente, Funcionario, EstoqueItem, Chamado } from '../../core/types/types';
 import { ChamadosCrudComponent } from '../../components/crud/chamados-crud.component';
 import { FuncionariosCrudComponent } from '../../components/crud/funcionarios-crud.component';
 import { ClientesCrudComponent } from '../../components/crud/clientes-crud.component';
@@ -82,6 +84,18 @@ import { ClientesCrudComponent } from '../../components/crud/clientes-crud.compo
               <span class="kpi-value">R$ {{ kpi.ticketMedio.toFixed(2) }}</span>
             </div>
             <div class="kpi-card">
+              <span class="kpi-label">Taxa de Conversão</span>
+              <span class="kpi-value">{{ kpi.taxaConversao }}%</span>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">Faturamento do Mês</span>
+              <span class="kpi-value">R$ {{ kpi.faturamentoMes.toFixed(2) }}</span>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">Valor em Aberto</span>
+              <span class="kpi-value">R$ {{ kpi.valorEmAberto.toFixed(2) }}</span>
+            </div>
+            <div class="kpi-card">
               <span class="kpi-label">Equipe</span>
               <span class="kpi-value">{{ kpi.totalFuncionarios }}</span>
             </div>
@@ -93,15 +107,107 @@ import { ClientesCrudComponent } from '../../components/crud/clientes-crud.compo
               <span class="kpi-label">OS em Aberto</span>
               <span class="kpi-value">{{ kpi.ordensAbertas }}</span>
             </div>
+            <div class="kpi-card">
+              <span class="kpi-label">Chamados Abertos</span>
+              <span class="kpi-value">{{ kpi.chamadosAbertos }}</span>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">Estoque Baixo</span>
+              <span class="kpi-value" [style.color]="kpi.estoqueBaixo > 0 ? '#f87171' : ''">{{ kpi.estoqueBaixo }}</span>
+            </div>
+          </div>
+
+          <!-- Linha: alertas + distribuição -->
+          <div class="dash-row">
+            <!-- Alertas de OS Urgentes -->
+            @if (ordensUrgentes.length > 0) {
+              <div class="dash-col">
+                <div class="alert-card alert-urgent">
+                  <div class="alert-header">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <span>OS Urgentes ({{ ordensUrgentes.length }})</span>
+                  </div>
+                  <div class="alert-list">
+                    @for (o of ordensUrgentes; track o.id) {
+                      <div class="alert-item">
+                        <span class="alert-id">#{{ o.id }}</span>
+                        <span class="alert-text">{{ o.clienteNome }} — {{ o.aparelho }}</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+
+            <!-- Estoque Baixo -->
+            @if (estoqueAlertas.length > 0) {
+              <div class="dash-col">
+                <div class="alert-card alert-estoque">
+                  <div class="alert-header">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                    <span>Estoque Baixo ({{ estoqueAlertas.length }})</span>
+                  </div>
+                  <div class="alert-list">
+                    @for (e of estoqueAlertas; track e.id) {
+                      <div class="alert-item">
+                        <span class="alert-id">{{ e.nome }}</span>
+                        <span class="alert-text">{{ e.quantidade }} / {{ e.estoqueMinimo }} min</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Distribuição de Status + Últimas OS -->
+          <div class="dash-row">
+            <div class="dash-col">
+              <div class="section">
+                <h3>OS por Status</h3>
+                <div class="status-dist">
+                  @for (s of statusCounts; track s.label) {
+                    <div class="status-bar-row">
+                      <span class="status-bar-label">{{ s.label }}</span>
+                      <div class="status-bar-track">
+                        <div class="status-bar-fill" [style.width.%]="s.count / ordens.length * 100" [style.background]="s.color"></div>
+                      </div>
+                      <span class="status-bar-count">{{ s.count }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+            <div class="dash-col">
+              <div class="section">
+                <h3>Últimas OS</h3>
+                <div class="ultimas-os">
+                  @for (o of ultimasOS; track o.id) {
+                    <div class="ultima-os-item">
+                      <div class="ultima-os-top">
+                        <span class="ultima-os-id">#{{ o.id }}</span>
+                        <span class="ultima-os-cliente">{{ o.clienteNome }}</span>
+                        <span class="status-badge status-{{ o.status.toLowerCase().replace(/\s+/g, '-') }}">{{ o.status }}</span>
+                      </div>
+                      <div class="ultima-os-bottom">
+                        <span>{{ o.aparelho }}</span>
+                        <span>{{ o.dataEntrada }}</span>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Performance por técnico -->
           <div class="section">
-            <h3>Performance por Técnico</h3>
+            <h3>Ranking de Técnicos</h3>
             <div class="table-wrapper">
               <table>
                 <thead>
                   <tr>
+                    <th>#</th>
                     <th>Técnico</th>
                     <th>Total OS</th>
                     <th>Concluídas</th>
@@ -110,8 +216,15 @@ import { ClientesCrudComponent } from '../../components/crud/clientes-crud.compo
                   </tr>
                 </thead>
                 <tbody>
-                  @for (t of performanceTecnicos; track t.id) {
+                  @for (t of performanceTecnicos; track t.id; let i = $index) {
                     <tr>
+                      <td>
+                        @if (i < 3) {
+                          <span class="rank rank-{{ i + 1 }}">{{ i + 1 }}</span>
+                        } @else {
+                          <span class="rank">{{ i + 1 }}</span>
+                        }
+                      </td>
                       <td>{{ t.nome }}</td>
                       <td>{{ t.total }}</td>
                       <td>{{ t.concluidas }}</td>
@@ -282,6 +395,37 @@ import { ClientesCrudComponent } from '../../components/crud/clientes-crud.compo
     .kpi-label { font-size: .75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; display: block; margin-bottom: 8px; }
     .kpi-value { font-size: 1.8rem; font-weight: 800; color: var(--text); }
 
+    .dash-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+    @media (max-width: 700px) { .dash-row { grid-template-columns: 1fr; } }
+
+    .alert-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
+    .alert-urgent { border-left: 3px solid #ef4444; }
+    .alert-estoque { border-left: 3px solid #f59e0b; }
+    .alert-header { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: .85rem; color: var(--text); margin-bottom: 12px; }
+    .alert-list { display: flex; flex-direction: column; gap: 8px; }
+    .alert-item { display: flex; gap: 8px; font-size: .82rem; color: var(--text-muted); align-items: center; }
+    .alert-id { font-weight: 600; color: var(--text); white-space: nowrap; }
+    .alert-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .status-dist { display: flex; flex-direction: column; gap: 10px; }
+    .status-bar-row { display: flex; align-items: center; gap: 10px; }
+    .status-bar-label { width: 150px; font-size: .8rem; font-weight: 600; color: var(--text); flex-shrink: 0; }
+    .status-bar-track { flex: 1; height: 22px; background: var(--surface-hover); border-radius: 6px; overflow: hidden; }
+    .status-bar-fill { height: 100%; border-radius: 6px; transition: width .4s ease; min-width: 4px; }
+    .status-bar-count { width: 36px; text-align: right; font-size: .85rem; font-weight: 700; color: var(--text); }
+
+    .ultimas-os { display: flex; flex-direction: column; gap: 8px; }
+    .ultima-os-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; border-left: 3px solid var(--primary); }
+    .ultima-os-top { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; flex-wrap: wrap; }
+    .ultima-os-id { font-weight: 700; font-size: .8rem; color: var(--text-muted); }
+    .ultima-os-cliente { font-weight: 600; font-size: .85rem; color: var(--text); }
+    .ultima-os-bottom { display: flex; justify-content: space-between; font-size: .78rem; color: var(--text-muted); }
+
+    .rank { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 6px; font-size: .75rem; font-weight: 700; background: var(--surface-hover); color: var(--text-muted); }
+    .rank-1 { background: rgba(234,179,8,.15); color: #eab308; }
+    .rank-2 { background: rgba(148,163,184,.15); color: #94a3b8; }
+    .rank-3 { background: rgba(180,83,9,.15); color: #b45309; }
+
     .section { margin-bottom: 32px; }
     .section h3 { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 16px; }
     .section h4 { font-size: .9rem; font-weight: 600; color: var(--text-muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: .04em; }
@@ -306,9 +450,16 @@ export class AreaGerenteComponent implements OnInit, OnDestroy {
   ordens: OrdemServico[] = [];
   funcionarios: Funcionario[] = [];
   clientes: Cliente[] = [];
+  estoque: EstoqueItem[] = [];
+  chamados: Chamado[] = [];
 
-  kpi = { faturamentoTotal: 0, ordensFechadas: 0, ticketMedio: 0, totalFuncionarios: 0, totalClientes: 0, ordensAbertas: 0 };
+  kpi = { faturamentoTotal: 0, ordensFechadas: 0, ticketMedio: 0, totalFuncionarios: 0, totalClientes: 0, ordensAbertas: 0, taxaConversao: 0, faturamentoMes: 0, valorEmAberto: 0, chamadosAbertos: 0, estoqueBaixo: 0 };
   performanceTecnicos: { id: number; nome: string; total: number; concluidas: number; andamento: number; faturamento: number }[] = [];
+
+  statusCounts: { label: string; count: number; color: string }[] = [];
+  ultimasOS: OrdemServico[] = [];
+  ordensUrgentes: OrdemServico[] = [];
+  estoqueAlertas: EstoqueItem[] = [];
 
   loading = false;
   calc = { maoObra: 0, pecas: 0, desconto: 0, garantiaDias: 90 };
@@ -321,6 +472,8 @@ export class AreaGerenteComponent implements OnInit, OnDestroy {
     private ordensService: OrdensService,
     private clientesService: ClientesService,
     private funcionariosService: FuncionariosService,
+    private estoqueService: EstoqueService,
+    private chamadosService: ChamadosService,
     private router: Router,
     public auth: AuthService,
     private cdr: ChangeDetectorRef
@@ -339,12 +492,16 @@ export class AreaGerenteComponent implements OnInit, OnDestroy {
     forkJoin({
       ordens: this.ordensService.listar(),
       funcionarios: this.funcionariosService.listar(),
-      clientes: this.clientesService.listar()
+      clientes: this.clientesService.listar(),
+      estoque: this.estoqueService.listar(),
+      chamados: this.chamadosService.listar()
     }).pipe(takeUntil(this.destroy$)).subscribe({
       next: (r) => {
         this.ordens = r.ordens;
         this.funcionarios = r.funcionarios;
         this.clientes = r.clientes;
+        this.estoque = r.estoque;
+        this.chamados = r.chamados;
         this.calcularKPIs();
         this.filtrarFaturamento();
         this.loading = false;
@@ -363,6 +520,15 @@ export class AreaGerenteComponent implements OnInit, OnDestroy {
     this.kpi.totalFuncionarios = this.funcionarios.length;
     this.kpi.totalClientes = this.clientes.length;
     this.kpi.ordensAbertas = abertas.length;
+    this.kpi.taxaConversao = this.ordens.length ? Math.round(entregues.length / this.ordens.length * 100) : 0;
+    this.kpi.valorEmAberto = abertas.reduce((s, o) => s + (o.valorTotal ?? 0), 0);
+
+    const mesAtual = new Date().toISOString().slice(0, 7);
+    const ordensMes = this.ordens.filter(o => o.dataEntrada?.startsWith(mesAtual));
+    this.kpi.faturamentoMes = ordensMes.reduce((s, o) => s + (o.valorTotal ?? 0), 0);
+
+    this.kpi.chamadosAbertos = this.chamados.filter(c => c.status !== 'Resolvido' && c.status !== 'Fechado').length;
+    this.kpi.estoqueBaixo = this.estoque.filter(e => (e.quantidade ?? 0) <= (e.estoqueMinimo ?? 0)).length;
 
     this.performanceTecnicos = this.funcionarios.map(f => {
       const ordensDoTecnico = this.ordens.filter(o => o.tecnicoId === f.id);
@@ -375,6 +541,17 @@ export class AreaGerenteComponent implements OnInit, OnDestroy {
         faturamento: ordensDoTecnico.reduce((s, o) => s + (o.valorTotal ?? 0), 0)
       };
     });
+
+    const cores: Record<string, string> = { 'Na Fila': '#6b7280', 'Em Análise': '#f59e0b', 'Orçamento Aprovado': '#3b82f6', 'Pronto': '#22c55e', 'Entregue': '#8b5cf6' };
+    const contagem: Record<string, number> = {};
+    for (const o of this.ordens) contagem[o.status] = (contagem[o.status] || 0) + 1;
+    this.statusCounts = Object.entries(contagem).map(([label, count]) => ({ label, count, color: cores[label] || '#6b7280' }));
+
+    this.ultimasOS = [...this.ordens].sort((a, b) => (b.dataEntrada || '').localeCompare(a.dataEntrada || '')).slice(0, 5);
+
+    this.ordensUrgentes = this.ordens.filter(o => o.prioridade === 'Urgente' && o.status !== 'Pronto' && o.status !== 'Entregue');
+
+    this.estoqueAlertas = this.estoque.filter(e => (e.quantidade ?? 0) <= (e.estoqueMinimo ?? 0)).slice(0, 5);
   }
 
   filtrarFaturamento() {

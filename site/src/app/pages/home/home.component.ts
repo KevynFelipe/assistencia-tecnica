@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
@@ -468,6 +468,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   };
 
   constructor(
+    private cdr: ChangeDetectorRef,
     private ordensService: OrdensService,
     private clientesService: ClientesService,
     private equipamentosService: EquipamentosService
@@ -486,17 +487,17 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.stats.receita = ordens
         .filter(o => (o.status === 'Pronto' || o.status === 'Entregue') && o.valorTotal)
         .reduce((acc, o) => acc + (o.valorTotal ?? 0), 0);
-      p1 = true; done();
+      p1 = true; done(); this.cdr.detectChanges();
     });
 
     this.clientesService.listar().pipe(takeUntil(this.destroy$)).subscribe(c => {
       this.stats.clientesAtivos = c.filter(c => c.ativo).length;
-      p2 = true; done();
+      p2 = true; done(); this.cdr.detectChanges();
     });
 
     this.equipamentosService.listar().pipe(takeUntil(this.destroy$)).subscribe(e => {
       this.stats.equipamentos = e.length;
-      p3 = true; done();
+      p3 = true; done(); this.cdr.detectChanges();
     });
   }
 

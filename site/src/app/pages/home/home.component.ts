@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { Subject, catchError, takeUntil, throwError } from 'rxjs';
+import { Subject, catchError, of, takeUntil } from 'rxjs';
 import { OrdensService } from '../../core/services/ordens.service';
 import { ClientesService } from '../../core/services/clientes.service';
 import { EquipamentosService } from '../../core/services/equipamentos.service';
@@ -488,7 +488,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     this.ordensService.listar().pipe(
       takeUntil(this.destroy$),
-      catchError(() => { this.statsError = true; this.statsLoading = false; return throwError(() => new Error('Falha ao carregar ordens')); })
+      catchError(() => { this.statsError = true; this.statsLoading = false; return of([]); })
     ).subscribe(ordens => {
       this.stats.totalOS = ordens.length;
       this.stats.receita = ordens
@@ -500,7 +500,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     this.clientesService.listar().pipe(
       takeUntil(this.destroy$),
-      catchError(() => { this.statsError = true; this.statsLoading = false; return throwError(() => new Error('Falha ao carregar clientes')); })
+      catchError(() => { this.statsError = true; this.statsLoading = false; return of([]); })
     ).subscribe(c => {
       this.stats.clientesAtivos = c.filter(c => c.ativo).length;
       clientesOk = true;
@@ -509,7 +509,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     this.equipamentosService.listar().pipe(
       takeUntil(this.destroy$),
-      catchError(() => { this.statsError = true; this.statsLoading = false; return throwError(() => new Error('Falha ao carregar equipamentos')); })
+      catchError(() => { this.statsError = true; this.statsLoading = false; return of([]); })
     ).subscribe(e => {
       this.stats.equipamentos = e.length;
       equipOk = true;

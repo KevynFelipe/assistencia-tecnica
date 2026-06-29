@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { Subject, catchError, of, takeUntil } from 'rxjs';
+import { Subject, forkJoin, takeUntil } from 'rxjs';
 import { OrdensService } from '../../core/services/ordens.service';
 import { ClientesService } from '../../core/services/clientes.service';
 import { EquipamentosService } from '../../core/services/equipamentos.service';
@@ -478,42 +478,18 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   private carregarStats() {
-    let ordensOk = false, clientesOk = false, equipOk = false;
-
-    const tentarFinalizar = () => {
-      if (ordensOk && clientesOk && equipOk) {
-        this.statsLoading = false;
-      }
-    };
-
-    this.ordensService.listar().pipe(
-      takeUntil(this.destroy$),
-      catchError(() => { this.statsError = true; this.statsLoading = false; return of([]); })
-    ).subscribe(ordens => {
+    forkJoin({
+      ordens: this.ordensService.listar(),
+      clientes: this.clientesService.listar(),
+      equipamentos: this.equipamentosService.listar()
+    }).pipe(takeUntil(this.destroy$)).subscribe(({ ordens, clientes, equipamentos }) => {
       this.stats.totalOS = ordens.length;
       this.stats.receita = ordens
         .filter(o => (o.status === 'Pronto' || o.status === 'Entregue') && o.valorTotal)
         .reduce((acc, o) => acc + (o.valorTotal ?? 0), 0);
-      ordensOk = true;
-      tentarFinalizar();
-    });
-
-    this.clientesService.listar().pipe(
-      takeUntil(this.destroy$),
-      catchError(() => { this.statsError = true; this.statsLoading = false; return of([]); })
-    ).subscribe(c => {
-      this.stats.clientesAtivos = c.filter(c => c.ativo).length;
-      clientesOk = true;
-      tentarFinalizar();
-    });
-
-    this.equipamentosService.listar().pipe(
-      takeUntil(this.destroy$),
-      catchError(() => { this.statsError = true; this.statsLoading = false; return of([]); })
-    ).subscribe(e => {
-      this.stats.equipamentos = e.length;
-      equipOk = true;
-      tentarFinalizar();
+      this.stats.clientesAtivos = clientes.filter(c => c.ativo).length;
+      this.stats.equipamentos = equipamentos.length;
+      this.statsLoading = false;
     });
   }
 

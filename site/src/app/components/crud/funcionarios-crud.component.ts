@@ -276,7 +276,7 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
     .field-erroror { display: block; color: var(--danger); font-size: .75rem; margin-top: 4px; }
   `]
 })
-export class FuncionariosCrudComponent implements OnInit {
+export class FuncionariosCrudComponent implements OnInit, OnDestroy {
   constructor(private service: FuncionariosService, private cdr: ChangeDetectorRef, private el: ElementRef) {}
 
   itens: Funcionario[] = [];

@@ -286,7 +286,7 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
     .success::before { content: '\u2713'; font-weight: 700; }
   `]
 })
-export class EquipamentosCrudComponent implements OnInit {
+export class EquipamentosCrudComponent implements OnInit, OnDestroy {
   constructor(
     private service: EquipamentosService,
     private clientesService: ClientesService,

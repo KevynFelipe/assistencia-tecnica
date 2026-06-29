@@ -312,7 +312,7 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
     .success::before { content: '\u2713'; font-weight: 700; }
   `]
 })
-export class EstoqueCrudComponent implements OnInit {
+export class EstoqueCrudComponent implements OnInit, OnDestroy {
   constructor(private service: EstoqueService, private cdr: ChangeDetectorRef, private el: ElementRef) {}
 
   itens: EstoqueItem[] = [];

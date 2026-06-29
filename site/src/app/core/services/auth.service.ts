@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, map } from 'rxjs';
+import { BehaviorSubject, Observable, map, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { Funcionario, Cliente } from '../types/types';
 import { environment } from '../../../environments/environment';
 
@@ -36,6 +37,7 @@ export class AuthService {
       return new Observable(sub => sub.next(null));
     }
     return this.http.get<Funcionario[]>(`${environment.apiUrl}/funcionarios?email=${encodeURIComponent(email)}`).pipe(
+      catchError(() => of([] as Funcionario[])),
       map(list => {
         const found = list.find(f => f.senha === senha);
         if (!found || !found.id) {
@@ -58,6 +60,7 @@ export class AuthService {
       return new Observable(sub => sub.next(null));
     }
     return this.http.get<Cliente[]>(`${environment.apiUrl}/clientes?email=${encodeURIComponent(email)}`).pipe(
+      catchError(() => of([] as Cliente[])),
       map(list => {
         const found = list.find(c => c.senha === senha && c.ativo);
         if (!found || !found.id) {

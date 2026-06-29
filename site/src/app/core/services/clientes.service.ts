@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { Cliente } from '../types/types';
 import { environment } from '../../../environments/environment';
 
@@ -10,22 +11,22 @@ export class ClientesService {
   constructor(private http: HttpClient) {}
 
   listar(): Observable<Cliente[]> {
-    return this.http.get<Cliente[]>(this.API);
+    return this.http.get<Cliente[]>(this.API).pipe(catchError(() => of([])));
   }
 
   buscarPorId(id: number | string): Observable<Cliente> {
-    return this.http.get<Cliente>(`${this.API}/${id}`);
+    return this.http.get<Cliente>(`${this.API}/${id}`).pipe(catchError(() => of({} as Cliente)));
   }
 
   incluir(cliente: Cliente): Observable<Cliente> {
-    return this.http.post<Cliente>(this.API, cliente);
+    return this.http.post<Cliente>(this.API, cliente).pipe(catchError(() => of({} as Cliente)));
   }
 
   editar(cliente: Cliente): Observable<Cliente> {
-    return this.http.put<Cliente>(`${this.API}/${cliente.id}`, cliente);
+    return this.http.put<Cliente>(`${this.API}/${cliente.id}`, cliente).pipe(catchError(() => of({} as Cliente)));
   }
 
   excluir(id: number | string): Observable<Cliente> {
-    return this.http.delete<Cliente>(`${this.API}/${id}`);
+    return this.http.delete<Cliente>(`${this.API}/${id}`).pipe(catchError(() => of({} as Cliente)));
   }
 }
